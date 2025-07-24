@@ -115,7 +115,7 @@
     "a": "La estabilización tartárica en el proceso de producción de vino espumante se realiza al final del proceso de fermentación, justo antes del fraccionamiento. Este proceso implica enfriar el vino a una temperatura baja para que los cristales de tartrato se precipiten y puedan eliminarse antes del embotellado."
   },
   {
-    "topic": "20- Industria Vitivinícola,
+    "topic": "20- Industria Vitivinícola",
     "q": "¿Qué es el enfriado antes de fermentar en el proceso de producción de vino espumante y por qué es necesario?",
     "a": "El enfriado antes de fermentar en el proceso de producción de vino espumante es necesario para controlar el inicio de la fermentación y asegurarse de que la temperatura esté en un rango óptimo para que las levaduras fermenten el mosto. Además, este proceso ayuda a mantener la consistencia y calidad del vino espumante."
   },
@@ -600,7 +600,7 @@
     "a": "La soda cáustica tiene una amplia variedad de aplicaciones en diferentes industrias. Algunas de las aplicaciones más comunes incluyen: Producción de papel: se utiliza para tratar la pulpa de papel y blanquearla. Industria textil: se utiliza para el teñido y tratamiento de fibras y telas. Tratamiento de aguas: se utiliza para neutralizar la acidez y eliminar metales pesados del agua. Industria alimentaria: se utiliza para la limpieza y desinfección de equipos y superficies. Producción de jabón y detergentes: se utiliza como agente limpiador. Industria petrolera: se utiliza para la eliminación de ácidos y la neutralización de productos químicos. Tratamiento de superficies metálicas: se utiliza para eliminar la oxidación y la corrosión en metales."
   },
   {
-    "36- Industria Química Básica",
+    "topic": "36-Industria Química Básica",
     "q": "¿Cómo se maneja y se almacena la soda cáustica de forma segura en las plantas de producción y en las industrias que la utilizan?",
     "a": "La soda cáustica es una sustancia altamente corrosiva y puede causar quemaduras graves en la piel y los ojos si se maneja incorrectamente. Por lo tanto, es importante tomar medidas de seguridad adecuadas en su manejo y almacenamiento. En las plantas de producción, la soda cáustica se almacena en tanques de acero inoxidable o polietileno de alta densidad. El almacenamiento debe realizarse en áreas bien ventiladas y alejadas de sustancias inflamables o combustibles. Además, se deben implementar medidas de seguridad adecuadas, como sistemas de alarma y extintores de incendios. En las industrias que utilizan soda cáustica, se deben seguir los protocolos de seguridad establecidos, como usar equipo de protección personal, como guantes, gafas y mascarillas, y almacenar la soda cáustica en lugares adecuados y etiquetados claramente. También es importante asegurarse de que los empleados estén capacitados en el manejo seguro de la sustancia y sepan cómo actuar en caso de emergencia."
   },
@@ -682,7 +682,7 @@
   {
     "topic": "9- Industria Siderúrgica",
     "q": "¿Qué es el sinter y cómo se obtiene?",
-    "a": " El sinter es un aglomerado de finos de mineral de hierro, finos de coque y otros materiales que se utiliza como carga en el alto horno. Se obtiene mediante un proceso de sinterización en el que los finos se mezclan con una solución aglomerante y se calientan a altas temperaturas para formar una masa porosa y resistente.
+    "a": "El sinter es un aglomerado de finos de mineral de hierro, finos de coque y otros materiales que se utiliza como carga en el alto horno. Se obtiene mediante un proceso de sinterización en el que los finos se mezclan con una solución aglomerante y se calientan a altas temperaturas para formar una masa porosa y resistente."
   },
   {
     "topic": "9- Industria Siderúrgica",
@@ -995,7 +995,7 @@
     "a": "En la provincia de Mendoza: Algunas de las fábricas de conservas en Mendoza incluyen La Campagnola, Arcor, Mendocina y Cebollitas."
   },
   {
-    "19- Tomate y Durazno en conserva",
+    "topic":"19- Tomate y Durazno en conserva",
     "q": "¿Cuántas toneladas de tomate y durazno se procesan anualmente?",
     "a": "En promedio, se procesan alrededor de 300.000 toneladas de tomate y 50.000 toneladas de durazno anualmente.La distribución de los productos se realiza a nivel local a través de supermercados y tiendas minoristas, y a nivel nacional mediante cadenas de distribución y transporte. "
   },
