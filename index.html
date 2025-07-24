@@ -43,9 +43,24 @@ select{padding:.5rem 1rem;font-size:1rem;border-radius:.5rem;border:1px solid #d
   </div>
 </div>
 
-<script id="cardsData" type="application/json">
-  []
+<script>
+/* Cargar tarjetas desde JSON externo */
+fetch('cardsData.json')
+  .then(r => r.json())
+  .then(data => {
+    cards = data;
+    // rellenar selector y mazo
+    topics.splice(1, topics.length - 1, ...new Set(cards.map(c => c.topic)));
+    topics.forEach(t => {
+      const o = document.createElement('option');
+      o.value = t; o.textContent = t;
+      if (![...select.options].some(opt => opt.value === t)) select.appendChild(o);
+    });
+    render(select.value || 'Todas');
+  })
+  .catch(err => console.error('No se pudo cargar cardsData.json', err));
 </script>
+
 <script>
 // Utiliza el bloque JSON para cargar tarjetas; aquí placeholder [] para mantener archivo liviano
 let cards=[];
