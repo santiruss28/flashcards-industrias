@@ -15,8 +15,15 @@ select{padding:.5rem 1rem;font-size:1rem;border-radius:.5rem;border:1px solid #d
 .card.flipped .inner{transform:rotateY(180deg)}
 .front,.back{position:absolute;width:100%;height:100%;backface-visibility:hidden;display:flex;align-items:center;justify-content:center;padding:1rem;border-radius:1rem}
 .front{background:#ffffff;color:#111827}
-.back{background:#1d4ed8;color:#ffffff;transform:rotateY(180deg);flex-direction:column}
+.back{background:#1d4ed8;color:#ffffff;transform:rotateY(180deg);flex-direction:column;overflow-y:auto;scrollbar-width:thin;max-height:100%}
+.back::-webkit-scrollbar{width:6px}
+.back::-webkit-scrollbar-thumb{background:#93c5fd;border-radius:3px}
 .ai{font-size:.75rem;opacity:.8;margin-top:.5rem}
+/* Modal */
+#overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:1000}
+#modal{background:#ffffff;color:#111827;width:min(640px,90%);max-height:80vh;padding:1.5rem;border-radius:1rem;overflow-y:auto;box-shadow:0 8px 16px rgba(0,0,0,.25);}
+#modal h2{margin-top:0;font-size:1.2rem}
+#closeBtn{position:absolute;top:.8rem;right:1rem;font-size:1.4rem;cursor:pointer;color:#475569}
 </style>
 </head>
 <body>
@@ -27,591 +34,52 @@ select{padding:.5rem 1rem;font-size:1rem;border-radius:.5rem;border:1px solid #d
 </div>
 <div id="deck"></div>
 
-<!-- Dataset separado para evitar errores de tamaño -->
-<script id="cardsData" type="application/json">
-[
-  {
-    "topic": "ORAL 1",
-    "q": "¿Cómo son las plantaciones de olivos en Mendoza y cuál es la diferencia con las del norte?",
-    "a": "En Mendoza, las plantaciones de olivos se caracterizan por su gran extensión y por ser de riego por goteo. En cambio, las plantaciones de olivos en el norte son más pequeñas y se cultivan mediante riego por inundación o gravedad."
-  },
-  {
-    "topic": "ORAL 1",
-    "q": "¿Qué es el diferimiento positivo y cómo ha impulsado el desarrollo de la industria olivícola?",
-    "a": "El diferimiento positivo es un régimen tributario que permite a las empresas del sector olivícola pagar menos impuestos a medida que reinvierten sus ganancias en la producción. Ha impulsado el desarrollo de la industria olivícola porque permite a las empresas tener más capital para invertir en maquinaria, tecnología y en la contratación de más trabajadores."
-  },
-  {
-    "topic": "ORAL 1",
-    "q": "¿Por qué es importante la zona de La Rioja en la industria olivícola?",
-    "a": "La Rioja es importante en la industria olivícola porque tiene un clima y suelo ideal para el cultivo de olivos, además de contar con una gran cantidad de hectáreas cultivadas y ser la segunda provincia productora de aceite de oliva en Argentina. La Rioja es una de las provincias argentinas que más se destaca dentro de la industria olivícola. Con una superficie cubierta de aproximadamente **24.500 hectáreas**, La Rioja genera alrededor del **65%** de la producción nacional de aceitunas y cerca del **55%** de la producción de aceites."
-  },
-  {
-    "topic": "ORAL 1",
-    "q": "¿Para qué se utiliza la aceituna de mesa y cuál es el proceso de producción?",
-    "a": "La aceituna de mesa se utiliza principalmente para el consumo humano directo, y su proceso de producción incluye la cosecha, selección, clasificación, envasado y conservación. La soda cáustica se utiliza en el proceso de conservación, ya que ayuda a eliminar la acidez natural de la aceituna. Limpieza y lavado, Clasificación por tamaños, \"Cocido\" con sosa cáustica, Fermentación en salmuera, Clasificado/deshuesado/relleno, Envasado, ACEITUNA ENVASADA."
-  },
-  {
-    "topic": "ORAL 1",
-    "q": "¿Cómo se tratan los efluentes de la industria olivícola y por qué no se pueden tirar directamente en un cauce?",
-    "a": "Los efluentes de la industria olivícola se tratan mediante sistemas de tratamiento que reducen la cantidad de materia orgánica disuelta y neutralizan los niveles de pH para evitar dañar el medio ambiente. No se pueden tirar directamente en un cauce porque contienen compuestos químicos y sólidos que pueden contaminar ríos y arroyos."
-  },
-  {
-    "topic": "ORAL 1",
-    "q": "¿Cómo funcionan los sistemas de lagunaje intensivo y extensivo?",
-    "a": "Los sistemas de lagunaje intensivo y extensivo son dos tipos de tratamiento de aguas residuales. El sistema de lagunaje intensivo utiliza bacterias aeróbicas para descomponer la materia orgánica, mientras que el sistema de lagunaje extensivo utiliza plantas acuáticas para eliminar nutrientes y contaminantes del agua."
-  },
-  {
-    "topic": "ORAL 1",
-    "q": "¿Cuáles son los métodos para producir soda cáustica y cuál es el más recomendable?",
-    "a": "Los dos métodos para producir soda cáustica son el método Leblanc y el método Solvay. El método Solvay es el más recomendable porque es más económico, consume menos energía y produce menos emisiones de dióxido de carbono."
-  },
-  {
-    "topic": "ORAL 1",
-    "q": "¿En qué otros procesos se utiliza la soda cáustica?",
-    "a": "La soda cáustica se utiliza en otros procesos como la fabricación de papel, la producción de aluminio, la refinación de petróleo y en la industria textil. La soda cáustica es un hidróxido cáustico usado en distintas industrias, listado de 10 aplicaciones de la soda cáustica: 1. Fabricación de papel 2. Fabricación de tejidos 3. Fabricación de detergentes 4. Fabricación de jabones 5. Fabricación de crayón 6. Fabricación de explosivos 7. Fabricación de pinturas 8. Fabricación de productos de petróleo 9. Limpiadores de desagües 10. Limpiadores de hornos."
-  },
-  {
-    "topic": "ORAL 1",
-    "q": "¿Cuáles son las etapas de prospección minera y cuáles son las características de cada una?",
-    "a": "La prospección minera es la etapa inicial del proceso de la minería y se enfoca en la exploración de un terreno para determinar si existen minerales económicamente aprovechables. Esta etapa se divide en tres fases: Fase de reconocimiento: se realiza una evaluación preliminar del área de interés para determinar si es prometedora para la exploración minera. Se utilizan técnicas como la observación de la geología del terreno, la revisión de mapas geológicos y la recopilación de información histórica. Fase de exploración: se lleva a cabo una exploración más detallada del área de interés para determinar la presencia de minerales y su extensión. Se utilizan técnicas como la perforación de pozos, la toma de muestras de roca y suelo, y la realización de estudios geofísicos. Fase de evaluación: se evalúa la información recopilada durante la fase de exploración para determinar la viabilidad económica de la explotación minera. Se realicen estudios de factibilidad y se determine la cantidad y calidad de los minerales presentes. En resumen, la prospección minera es la etapa inicial del proceso de la minería y se divide en tres fases: reconocimiento, exploración y evaluación. Durante estas fases se utilizan técnicas como la observación de la geología del terreno, la perforación de pozos, la toma de muestras de roca y suelo, y la realización de estudios geofísicos para determinar la presencia de minerales y su capacidad económica."
-  },
-  {
-    "topic": "ORAL 1",
-    "q": "¿Qué es la ley 7722 y por qué se han bloqueado los emprendimientos mineros en Mendoza (SAN JORGE, SIERRA PINTADA, MALARGUE Y POTASIO RIO COLORADO)?",
-    "a": "La Ley 7722 es una ley ambiental de la provincia de Mendoza, Argentina, que establece restricciones a la minería metalífera a cielo abierto y el uso de sustancias químicas tóxicas en el proceso de extracción. Esta ley fue aprobada en el año 2007 y ha sido objeto de controversia en la provincia debido a los proyectos mineros que han sido bloqueados debido a su aplicación. Los emprendimientos mineros de San Jorge, Sierra Pintada, Malargüe y Potasio Río Colorado han sido bloqueados debido a su impacto potencial en el medio ambiente y la salud de las comunidades locales. Los proyectos han sido controvertidos debido a su uso de sustancias químicas tóxicas como el cianuro y el ácido sulfúrico en la extracción de minerales y su potencial de contaminar los acuíferos subterráneos y las fuentes de agua potable."
-  },
-  {
-    "topic": "ORAL 1",
-    "q": "¿Quién no cumple en la ley 7722 y cuáles son los problemas en cada uno de esos emprendimientos mineros?",
-    "a": "La ley 7722 establece una serie de requisitos y regulaciones para la minería metalífera en la provincia de Mendoza, que incluyen la prohibición de la minería a cielo abierto y la utilización de sustancias químicas tóxicas en el proceso de extracción. Sin embargo, algunos proyectos mineros han sido objeto de controversia debido a la falta de cumplimiento de estas regulaciones, lo que ha llevado a su bloqueo y a la discusión sobre su impacto ambiental y social en la región. La Ley 7722 ha sido objeto de un intenso debate en Mendoza, Argentina, con argumentos a favor y en contra. Los argumentos a favor de la ley se centran en la protección del medio ambiente y la salud pública. La ley prohíbe el uso de sustancias químicas tóxicas en los procesos de extracción de minerales, lo que reduce el riesgo de contaminación del agua y el suelo. Los defensores de la ley argumentan que la minería puede tener un impacto negativo en el medio ambiente y la salud de las personas, y que la ley es necesaria para proteger a la población. Por otro lado, los argumentos en contra de la ley se centran en el impacto económico de la prohibición de ciertas prácticas mineras. Los oportunidades de la ley argumentan que la minería es una fuente importante de empleo y desarrollo económico en la provincia, y que la ley ha obstaculizado el crecimiento económico. También argumentan que la ley es necesaria, ya que existen regulaciones nacionales que protegen el medio ambiente y la salud pública. En resumen, los argumentos a favor de la Ley 7722 se centran en la protección del medio ambiente y la salud pública, mientras que los argumentos en contra se centran en el impacto económico de la prohibición de ciertas prácticas mineras y la existencia de regulaciones nacionales que protegen el medio ambiente y la salud publica."
-  },
-  {
-    "topic": "ORAL 2",
-    "q": "¿Qué es el barril de petróleo criollo y cuál es su importancia en Mendoza?",
-    "a": "El barril de petroleo criollo es un precio de referencia para el petroleo crudo en el mercado local de Argentina. En Mendoza, el barril criollo es importante porque permite garantizar las regalías para la provincia y conservar empleos en el sector petrolero. El precio del barril criollo se fijó en US$ 55 en abril de 2022. La medida permitió un aumento en los precios de los combustibles y garantizar la estabilidad del sector petrolero en la provincia. En resumen, el barril de petróleo criollo es un precio de referencia importante para el crudo en el mercado local de Argentina y es relevante para garantizar las regalías y la estabilidad del sector petrolero en Mendoza."
-  },
-  {
-    "topic": "ORAL 2",
-    "q": "¿Cuál es el principal producto de exportación de Mendoza y cuánto representa en la economía de Argentina?",
-    "a": "En 2022, la provincia de Mendoza registró ventas al exterior por 1.601 millones de dólares, es decir, el 43,9% de las exportaciones de la región, con una caída interanual de 0,7%. Los principales productos exportados fueron vinos de uva, que representaron 47,6% del total exportado por la provincia."
-  },
-  {
-    "topic": "ORAL 2",
-    "q": "¿Qué otros productos de conservas produce Mendoza además de los estudiados?",
-    "a": "Además del vino, Mendoza produce una amplia variedad de conservas, como frutas en almíbar, aceitunas, tomates secos, dulces y mermeladas. Preparados de hortalizas, legumbres y frutas, con una participación de 12,4% y un crecimiento de 2,1%; y materias plásticas y sus manufacturas, que alcanzaron 7,1% de los despachos de la provincia al exterior, por la suba de 6,5%. Por su parte, siguieron en importancia hortalizas y legumbres sin elaborar -principalmente ajos-, a pesar de la baja de 8,0% y concentraron el 6,5% de las exportaciones mendocinas. Estas a su vez alcanzan numerosos destinos, pero se destacaron particularmente Mercosur, USMCA, Unión Europea, Chile, Reino Unido y \"Resto de ALADI\", que concentraron el 83,5% de los despachos provinciales al exterior, seguidos por China, Japón, SICA, Medio Oriente e India."
-  },
-  {
-    "topic": "ORAL 2",
-    "q": "¿Cómo ha variado la balanza comercial de Mendoza desde 1990? ¿En qué años ha sido positiva la balanza comercial de Mendoza y por qué?",
-    "a": "La balanza comercial de Mendoza, al igual que la de Argentina en general, ha tenido altibajos en las últimas décadas. A continuación, se describe año por año el comportamiento de la balanza comercial de Mendoza desde 1990: 1990: Durante este año, la balanza comercial de Mendoza tuvo un déficit de alrededor de 157 millones de dólares, con exportaciones por un valor de 236 millones de dólares e importaciones por un valor de 393 millones de dólares. 1995: En este año, la balanza comercial de Mendoza tuvo un déficit de alrededor de 175 millones de dólares, con exportaciones por un valor de 373 millones de dólares e importaciones por un valor de 548 millones de dólares. 2000: La balanza comercial de Mendoza comenzó a mostrar una tendencia positiva en este año, con exportaciones por un valor de 536 millones de dólares e importaciones por un valor de 506 millones de dólares, lo que representó un superávit de alrededor de 30 millones de dólares. 2005: Durante este año, la balanza comercial de Mendoza tuvo un superávit de alrededor de 490 millones de dólares, con exportaciones por un valor de 1.025 millones de dólares e importaciones por un valor de 535 millones de dólares. 2010: En este año, la balanza comercial de Mendoza registró un superávit de alrededor de 1.030 millones de dólares, con exportaciones por un valor de 2.021 millones de dólares e importaciones por un valor de 991 millones de dólares. 2015: La balanza comercial de Mendoza registró un superávit de alrededor de 1.205 millones de dólares, con exportaciones por un valor de 2.645 millones de dólares e importaciones por un valor de 1.440 millones de dólares. 2020: Durante este año, la balanza comercial de Mendoza tuvo un superávit de alrededor de 1.066 millones de dólares, con exportaciones por un valor de 2.354 millones de dólares e importaciones por un valor de 1.288 millones de dólares. Cabe destacar que la pandemia de COVID-19 impactó en las exportaciones de algunos productos, como el vino, aunque en general la balanza comercial de la provincia se mantuvo positiva."
-  },
-  {
-    "topic": "ORAL 3",
-    "q": "¿Cuál es el proceso completo de producción de azúcar, incluyendo la etapa en la que se agrega SO2 y qué se hace con los subproductos (bagazo, cachaza, melaza)?",
-    "a": "El proceso completo de producción de azúcar consta de varias etapas, que incluyen la extracción del jugo de caña de azúcar, clarificación, evaporación, cristalización y secado. Durante la etapa de clarificación, se agrega SO2 para reducir la turbiedad del jugo y mejorar la clarificación. Los subproductos del proceso son el bagazo, que se utiliza como combustible en la planta; la cachaza, que se utiliza como fertilizante en la agricultura; y la melaza, que se utiliza para la producción de alcohol, ron y otros productos. El proceso completo de producción de azúcar consta de varias etapas, las cuales se describen a continuación: 1. Cosecha de la caña de azúcar: Se lleva a cabo en el campo, donde se corta la caña de azúcar con machetes o máquinas cosechadoras. 2. Extracción del jugo de la caña: La caña de azúcar se muele en una serie de molinos para extraer su jugo. El jugo se separa de la fibra de la caña, conocida como bagazo. 3. Clarificación del jugo: El jugo extraído se somete a un proceso de clarificación, donde se eliminan las impurezas, como sólidos en suspensión y otros compuestos que afectan la calidad del azúcar. En esta etapa se añade dióxido de azufre (SO2) para evitar la fermentación del jugo. 4. Concentración del jugo: El jugo clarificado se calienta para evaporar parte del agua que contiene, lo que aumenta su concentración de azúcares. 5. Cristalización de la sacarosa: Se agregan químicos para que la sacarosa del jugo cristalice y se separe del resto de las impurezas. Luego se lleva a cabo un proceso de centrifugado para separar los cristales de azúcar del líquido residual, conocido como melaza. 6. Secado y enfriamiento del azúcar: Los cristales de azúcar se lavan y se secan en tambores rotativos a alta velocidad, antes de pasar a la fase de enfriamiento y empaque. En cuanto a los subproductos, el bagazo puede utilizarse como combustible en las calderas de las fábricas de azúcar para generar vapor y energía eléctrica, mientras que la cachaza se utiliza como fertilizante en la agricultura. La melaza, que es un líquido oscuro y espeso, se utiliza como ingrediente en la producción de alimentos para animales y en la elaboración de ron y otros productos de la industria alimentaria."
-  },
-  {
-    "topic": "ORAL 3",
-    "q": "¿Cómo se diseña un sistema de agua para una fábrica pequeña alimenticia que obtiene agua de un pozo y tiene una caldera?",
-    "a": "El diseño de un sistema de agua para una fábrica pequeña alimenticia que obtiene agua de un pozo y tiene una caldera incluye varias etapas, que incluyen la captación del agua con una bomba, la eliminación de los contaminantes groseros mediante un filtro de rejilla o malla, la coagulación y la filtración con filtro de tierras o arena, y la desinfección con ozono para eliminar los microorganismos. Para la caldera, se requiere un tratamiento adicional para reducir la dureza del agua y evitar la formación de incrustaciones. El diseño de un sistema de agua para una fábrica pequeña alimenticia que obtiene agua de un pozo y tiene una caldera involucra varios pasos, que se describen a continuación: 1. Análisis de las necesidades de agua: Se debe analizar la cantidad de agua requerida por la fábrica para las operaciones diarias y asegurarse de que se tenga suficiente agua disponible para las necesidades actuales y futuras. 2. Evaluación de la calidad del agua del pozo: Se debe realizar un análisis químico y bacteriológico del agua del pozo para determinar si cumple con los requisitos de calidad del agua potable. Si no se cumple con los requisitos, se deben tomar medidas para tratar el agua antes de utilizarla. 3. Diseño del sistema de tratamiento de agua: Si el agua del pozo no cumple con los requisitos de calidad del agua potable, se deben diseñar y seleccionar los equipos necesarios para tratarla, como un sistema de filtración, desinfección o ablandamiento. 4. Diseño del sistema de distribución de agua: El sistema de distribución debe estar diseñado para garantizar un suministro constante de agua a las áreas de la fábrica que la necesitan, como la caldera. Esto puede incluir la instalación de tuberías, válvulas, bombas y otros accesorios. 5. Diseño del sistema de control y monitoreo: El sistema debe tener un sistema de control y monitoreo para asegurarse de que la calidad del agua se mantenga constante y cumplir con las normas aplicables. Esto puede incluir dispositivos de medición, como medidores de flujo y sensores de calidad del agua. 6. Diseño del sistema de drenaje: Se debe diseñar un sistema de drenaje para eliminar el agua residual generada en la fábrica, incluyendo el agua de la caldera. El agua residual debe ser tratada antes de ser descargada al medio ambiente. En resumen, el diseño de un sistema de agua para una fábrica pequeña alimenticia que obtiene agua de un pozo y tiene una caldera requiere un enfoque integral y consideración cuidadosa de varios factores, incluyendo las necesidades de agua, la calidad del agua, el tratamiento de agua, el sistema de distribución, el control y monitoreo del agua, y el sistema de drenaje."
-  },
-  {
-    "topic": "ORAL 3",
-    "q": "¿Qué son la dureza temporal y permanente del agua y cómo se pueden reducir?",
-    "a": "La dureza del agua se refiere a la concentración de sales de calcio y magnesio disueltas en el agua. La dureza temporal se refiere a la presencia de carbonatos y bicarbonatos de calcio y magnesio, mientras que la dureza permanente se refiere a la presencia de sulfatos y cloruros de calcio y magnesio. La dureza del agua puede reducirse mediante el tratamiento con cal sosa, intercambio iónico o membranas de ósmosis inversa."
-  },
-  {
-    "topic": "ORAL 5",
-    "q": "¿Cuál es el proceso completo de producción de la leche en polvo?",
-    "a": "El proceso de producción de la leche en polvo se puede dividir en varios pasos: 1. Recepción y almacenamiento: Las camionetas de recolección de leche entregan la leche cruda en la planta procesadora, donde es almacenada en tanques refrigerados. 2. Estandarización: La leche cruda es sometida a un proceso de estandarización para asegurar que tenga una consistencia uniforme y un contenido de grasa constante. 3. Clarificación y descremado: La leche es clarificada y se separa la crema de la leche mediante un proceso de centrifugación. La crema se separa y se utiliza para hacer productos lácteos con alto contenido de grasa. 4. Pasteurización: La leche descremada es pasteurizada para eliminar bacterias y otros microorganismos."
-  },
-  {
-    "topic": "ORAL 6",
-    "q": "¿Qué información puedes proporcionar sobre la industria de la madera?",
-    "a": "La industria de la madera en Argentina es un sector importante de la economía. Se ha desarrollado en varias regiones del país, como la Patagonia, la región centro y el noroeste, donde se encuentran grandes extensiones de bosques y plantaciones forestales. En los últimos años, la industria de la madera ha experimentado un crecimiento sostenido, impulsado por la demanda de productos de madera en el mercado interno y externo. La industria de la madera tiene una cadena de valor compleja, que incluye la tala de árboles, el transporte de la madera a las plantas de procesamiento, el aserrado, el secado, el cepillado y el acabado de la madera, y la fabricación de productos de madera. La industria de la madera es importante en Argentina porque genera empleo y contribuye al desarrollo económico del país. Además, la madera es un recurso renovable y sostenible, lo que la convierte en una alternativa atractiva a otros materiales de construcción y fabricación. Sin embargo, la industria de la madera también enfrenta desafíos, como la tala ilegal, la deforestación y la falta de inversión en tecnologías más eficientes y sostenibles. Es importante que la industria de la madera se desarrolle de manera sostenible y que se promueva la reforestación y la conservación de los bosques para garantizar la disponibilidad de madera a largo plazo."
-  },
-  {
-    "topic": "ORAL 6",
-    "q": "¿Cuál es el proceso productivo de los tableros de madera?",
-    "a": "El proceso productivo de los tableros de madera incluye varias etapas, desde la selección de la materia prima hasta el embalaje y envío del producto final. A continuación se detallan los pasos principales: 1. Selección de la materia prima: El proceso comienza con la selección de la materia prima, que generalmente son troncos de madera de árboles como el pino, el abeto, el eucalipto y el álamo. 2. Descomposición de la madera: Los troncos se descomponen en astillas o fibras mediante el proceso de desfibrado, que se lleva a cabo a través de máquinas especializadas como la desintegradora y la desfibradora. 3. Clasificación de las fibras: Las fibras se clasifican según su tamaño y calidad, y se eliminan los residuos y los objetos extraños. 4. Preparación de la resina: Se prepara una mezcla de resina y aditivos, que se utilizará para unir las fibras durante el proceso de fabricación del tablero. 5. Formación del núcleo: Las fibras se mezclan con la resina y se distribuyen uniformemente sobre una cinta transportadora, formando una capa de fibras en bruto que se conoce como \"núcleo\". 6. Prensado: El núcleo se coloca en una prensa caliente y se somete a presión y temperatura controladas durante un período de tiempo determinado. Este proceso de prensado se llama consolidación y es crucial para el éxito del producto final. 7. Corte y acabado: Después del prensado, los tableros se cortan a la medida y se someten a procesos de lijado y acabado para mejorar su aspecto y resistencia. 8. Inspección de calidad: Antes de salir de la fábrica, los tableros se someten a una rigurosa inspección de calidad para garantizar que cumplan con los estándares de calidad requeridos. 9. Embalaje y envío: Finalmente, los tableros se embalan y se envían a sus destinos finales, donde se utilizarán para una variedad de aplicaciones, como la fabricación de muebles, puertas, pisos, paredes y techos, entre otros. Este es un resumen general del proceso de producción de tableros de madera. Es importante tener en cuenta que algunos detalles del proceso pueden variar dependiendo del tipo de tablero y de la fábrica que lo produce."
-  },
-  {
-    "topic": "ORAL 6",
-    "q": "¿Cómo ha evolucionado la industria minera desde 2019 hasta ahora?",
-    "a": "Desde 2019 hasta ahora, la industria minera ha experimentado cambios significativos debido a factores como la fluctuación de los precios de los minerales, la creciente demanda de minerales críticos para la transición energética, las preocupaciones ambientales y sociales, y la implementación de nuevas tecnologías. La pandemia de COVID-19 también ha tenido un impacto en la industria, ya que ha afectado la producción y la demanda de minerales. En general, la industria minera ha mostrado resiliencia y ha seguido invirtiendo en proyectos de exploración y producción. Se espera que la demanda de minerales siga creciendo en los próximos años, impulsada por la transición energética y el desarrollo de nuevas tecnologías."
-  },
-  {
-    "topic": "ORAL 6",
-    "q": "¿Cuáles son los principales países productores y consumidores de minerales?",
-    "a": "Los principales países productores de minerales varían según el tipo de mineral, pero algunos de los más importantes son China, Australia, Estados Unidos, Canadá, Rusia y Brasil. Los principales países consumidores de minerales son China, Estados Unidos, la Unión Europea, Japón y la India. La demanda de minerales ha aumentado en los últimos años, impulsada por el crecimiento económico y la industrialización en los países en desarrollo."
-  },
-  {
-    "topic": "ORAL 6",
-    "q": "¿Cuál es la importancia de la minería en la economía mundial y cuáles son los desafíos actuales de la industria?",
-    "a": "La minería es una actividad económica importante a nivel mundial, ya que provee los minerales necesarios para la producción de bienes y servicios. Contribuye al crecimiento económico, genera empleo y divisas, y es fundamental para el desarrollo de infraestructuras y tecnologías. Sin embargo, la industria minera también enfrenta desafíos, como la gestión ambiental, la relación con las comunidades locales, la seguridad laboral, la fluctuación de los precios de los minerales y la necesidad de invertir en nuevas tecnologías para mejorar la eficiencia y la sostenibilidad de la producción. Es importante que la minería se desarrolle de manera responsable y que se tomen medidas para mitigar los impactos negativos y maximizar los beneficios para la sociedad."
-  },
-  {
-    "topic": "ORAL 6",
-    "q": "¿Qué información puedes proporcionar sobre la industria textil y cuál es el proceso de producción de algodón?",
-    "a": "La industria textil es un sector importante de la economía mundial que se dedica a la producción de hilos, tejidos y prendas de vestir. Se ha desarrollado en diferentes regiones del mundo, como Asia, Europa y América, donde se encuentran grandes centros de producción y diseño. La industria textil tiene una cadena de valor compleja, que incluye el cultivo de fibras naturales como el algodón, la lana y la seda, la producción de fibras sintéticas como el poliéster y el nailon, el hilado, el tejido, el teñido, el estampado y el acabado de los tejidos, y la confección de prendas de vestir. El proceso de producción de algodón comienza con el cultivo del algodón en campos agrícolas. 1. Cultivo: El proceso comienza con el cultivo del algodón en campos agrícolas. 2. Recolección: Luego, las bolas de algodón se recolectan manualmente o con máquinas cosechadoras. 3. Desmote: El siguiente paso es separar las fibras de algodón de las semillas, en un proceso llamado \"desmote\". Esto puede hacerse a mano o mediante una máquina de desmote. 4. Cardado: Las fibras de algodón se someten a un proceso llamado \"cardado\", donde se desenredan y se eliminan los restos de semillas y otras impurezas. 5. Hilado: Las fibras de algodón cardadas se transforman en hilos mediante un proceso de hilado. Primero se estiran las fibras y se retuercen juntas para formar un hilo continuo. 6. Teñido y acabado: Finalmente, los hilos de algodón se tiñen y se someten a un proceso de acabado para mejorar su suavidad y su apariencia."
-  },
-  {
-    "topic": "ORAL 6",
-    "q": "¿Cuáles son los principales desafíos de la industria textil y cómo se pueden abordar?",
-    "a": "La industria textil enfrenta desafíos como la competencia global, la fluctuación de los precios de las materias primas, la necesidad de innovar en diseño y tecnología, la gestión ambiental y social, y la necesidad de adaptarse a las tendencias de la moda y las preferencias de los consumidores. Para abordar estos desafíos, la industria textil puede invertir en investigación y desarrollo, promover la sostenibilidad y la responsabilidad social, establecer alianzas estratégicas, y explorar nuevos mercados y nichos de productos. Es importante que la industria textil se desarrolle de manera sostenible y que se tomen medidas para proteger el medio ambiente y garantizar condiciones laborales justas para los trabajadores."
-  },
-  {
-    "topic": "ORAL 6",
-    "q": "¿Qué información puedes proporcionar sobre la industria de la pintura y cuáles son los componentes de la pintura?",
-    "a": "La industria de la pintura es un sector importante de la economía que se dedica a la producción de pinturas, recubrimientos y productos relacionados. Se ha desarrollado en diferentes regiones del mundo, donde se encuentran grandes centros de producción y diseño. La industria de la pintura tiene una cadena de valor compleja, que incluye la producción de materias primas como pigmentos, resinas, solventes y aditivos, la formulación y mezcla de los componentes, el envasado y la distribución de los productos. Los componentes de la pintura son: Pigmentos: Son los responsables del color y la opacidad de la pintura. Resinas: Son los aglutinantes que unen los pigmentos y forman la película de pintura. Solventes: Son los líquidos que disuelven las resinas y permiten que la pintura se aplique fácilmente. Aditivos: Son sustancias que se añaden para mejorar las propiedades de la pintura, como la resistencia a la abrasión, la durabilidad y la facilidad de aplicación. El proceso de producción de pinturas implica la mezcla y molienda de pigmentos, resinas, disolventes y aditivos para crear una solución uniforme que pueda ser envasada y utilizada para proteger y decorar superficies. Cada tipo de pintura puede tener un proceso de producción específico, dependiendo de su formulación y uso previsto."
-  },
-  {
-    "topic": "ORAL 6",
-    "q": "¿Cuál es el proceso de producción de pinturas?",
-    "a": "El proceso de producción de pinturas incluye varias etapas, desde la selección de las materias primas hasta el envasado y transporte del producto final. A continuación se detallan los pasos principales: 1. Selección de las materias primas: El proceso comienza con la selección de las materias primas, que incluyen pigmentos, resinas, solventes y aditivos. 2. Mezcla de los componentes: Los componentes se mezclan en proporciones específicas en un tanque de mezcla. 3. Molienda de los pigmentos: Los pigmentos se muelen para reducir su tamaño de partícula y mejorar su dispersión en la pintura. 4. Adición de aditivos: Los aditivos, como los estabilizadores, los conservantes y los agentes antiespumantes, se añaden a la pintura para mejorar su rendimiento y durabilidad. 5. Pruebas y ajustes: Se toman muestras de la pintura y se realizan pruebas de calidad para asegurarse de que cumple con los estándares requeridos. Si es necesario, se realizan ajustes en la fórmula para mejorar su calidad. 6. Envasado: Una vez que la pintura ha pasado las pruebas de calidad, se envasa en recipientes adecuados para su almacenamiento y transporte. En resumen, el proceso de producción de pinturas implica la mezcla y molienda de pigmentos, resinas, disolventes y aditivos para crear una solución uniforme que pueda ser envasada y utilizada para proteger y decorar superficies. Cada tipo de pintura puede tener un proceso de producción específico, dependiendo de su formulación y uso previsto."
-  },
-  {
-    "topic": "ORAL 7",
-    "q": "¿Cuál es el proceso de producción de vino?",
-    "a": "El proceso de producción de vino incluye varias etapas, desde la recepción de la uva hasta el embotellado y etiquetado del producto final. 1. **Recepción de la uva**: La uva es transportada a la bodega o cooperativa vitivinícola correspondiente en las mejores condiciones para evitar que comience a fermentar antes de tiempo. 2. **Tratamiento mecánico de la vendimia**: La maquinaria utilizada en el procesado de la vendimia en la bodega está destinada a la extracción total o parcial del mosto. 3. **Despalillado**: La operación del despalillado consiste en la separación de los raspones. 4. **Estrujado**: Tras el despalillado, el proceso continúa con el estrujado de la uva para comenzar a extraer el mosto. 5. **Encubado**: Para la elaboración del vino tinto, el mosto junto a los hollejos se introduce en unos depósitos para que maceren. 6. **Maceración y fermentación**: Durante este proceso, los hollejos van aportando el color al mosto, así como otros componentes que van a determinar el producto final, como son los taninos. Allí da comienzo la fermentación alcohólica. 7. **Descube y prensado**: Después de la fermentación, se procede al descube y prensado para separar el vino de los restos sólidos. 8. **Almacenamiento y filtración**: El vino se almacena en barricas o depósitos para su maduración y posteriormente se filtra para eliminar impurezas. 9. **Embotellado**: Finalmente, el vino es embotellado y etiquetado para su comercialización."
-  },
-  {
-    "topic": "ORAL 7",
-    "q": "¿Qué factores influyen en la calidad del vino y cómo se pueden mejorar?",
-    "a": "Hay varios factores que influyen en la calidad del vino y que pueden ser mejorados para obtener un producto de mayor calidad: 1. **Clima y tiempo**: El terroir del vino tiene una clara influencia en su calidad. 2. **Temperatura y luz solar**: Para llevar a cabo la fotosíntesis, las vides deben exponerse a temperaturas entre 60 y 70 grados Fahrenheit. 3. **Prácticas de cultivo**: Para conseguir un vino equilibrado debemos empezar en la viña, y por ello debemos tener uvas sin enfermedades, en perfecto estado de maduración para su contenido de azúcar, su acidez y carga de taninos. 4. **Proceso de vinificación**: La forma en que se elabora el vino, incluyendo la fermentación, la maduración y el embotellado, también influye en su calidad. 5. **Almacenamiento y envejecimiento**: El vino puede mejorar con el tiempo si se almacena en condiciones adecuadas de temperatura y humedad."
-  },
-  {
-    "topic": "ORAL 7",
-    "q": "¿Qué es la vinaza y cómo se trata en la industria vitivinícola?",
-    "a": "La vinaza es el residuo líquido que se obtiene después de la destilación del vino para producir alcohol. Es un subproducto de la industria vitivinícola que contiene materia orgánica, sales y nutrientes, y puede ser un contaminante si no se maneja adecuadamente. En la industria vitivinícola, la vinaza se trata mediante diferentes métodos, como la evaporación, la digestión anaeróbica y la fertilización de suelos. El objetivo es reducir el volumen y la carga contaminante de la vinaza, y aprovechar sus nutrientes para la producción de biogás, fertilizantes orgánicos o como fuente de energía. Es importante que la vinaza se gestione de manera sostenible para minimizar su impacto ambiental y maximizar su valorización."
-  },
-  {
-    "topic": "ORAL 7",
-    "q": "¿Cuáles son los tipos de energía eléctrica y cómo se generan?",
-    "a": "Los tipos de energía eléctrica y cómo se generan son los siguientes: 1. Generación térmica: Utiliza la combustión de combustibles fósiles (carbón, gas natural, petróleo) para calentar agua y producir vapor, que mueve una turbina y genera electricidad. 2. Generación hidroeléctrica: Utiliza la fuerza del agua en movimiento para mover una turbina y generar electricidad. 3. Generación eólica: Utiliza la energía del viento para hacer girar las aspas de un rotor que mueve un generador y produce electricidad. 4. Generación solar: Utiliza paneles solares para capturar la energía del sol y convertirla en electricidad. 5. Generación nuclear: Utiliza la fisión nuclear para generar calor que produce vapor para mover una turbina y generar electricidad."
-  },
-  {
-    "topic": "ORAL 7",
-    "q": "¿Cómo funciona el ciclo combinado en la generación de energía eléctrica?",
-    "a": "El ciclo combinado es un sistema de generación de energía eléctrica que combina dos tecnologías: la generación térmica y la generación de ciclo de gas. El proceso comienza con la combustión de gas natural en una turbina de gas, que produce energía mecánica para mover un generador eléctrico. Luego, los gases de escape calientes se utilizan para calentar agua y producir vapor, que se utiliza para generar energía eléctrica adicional en una turbina de vapor. Este proceso aumenta la eficiencia de la generación de energía, ya que se aprovecha el calor residual de la turbina de gas para generar más electricidad."
-  },
-  {
-    "topic": "ORAL 7",
-    "q": "¿Cuál es la matriz energética completa de Argentina y cómo se compone?",
-    "a": "La matriz energética de Argentina está compuesta por una combinación de fuentes de energía renovables y no renovables. Las fuentes más importantes son el petróleo y el gas natural, que representan una gran parte del suministro total de energía del país. También se utilizan otras fuentes como la hidroeléctrica, la nuclear y las energías renovables como la eólica y la solar. En los últimos años, Argentina ha estado trabajando para aumentar la proporción de energías renovables en su matriz energética. Actualmente, el país cuenta con 187 proyectos operativos que suman más de 5 MW de potencia (5.181,74 MW) a la matriz energética nacional, permitiendo abastecer la demanda eléctrica de 5,3 millones de hogares aproximadamente. En total, los combustibles fósiles (gas natural, petróleo y carbón mineral) constituyeron el 87% de la matriz energética en 2022, mientras que las fuentes renovables y la energía nuclear representaron el 13% restante."
-  },
-  {
-    "topic": "RESPUESTAS A: Aceite de soja por extracción por solventes",
-    "q": "¿Cómo se produce el aceite de soja mediante la extracción por solventes?",
-    "a": "La extracción por solventes es un método común para obtener aceite de soja a gran escala. Consiste en disolver el aceite de soja en un solvente orgánico, generalmente hexano, para separarlo de la harina de soja. El proceso se realiza en múltiples etapas, comenzando con la preparación de la soja y terminando con la separación del aceite del solvente y su refinación final."
-  },
-  {
-    "topic": "RESPUESTAS A: Aceite de soja por extracción por solventes",
-    "q": "¿Cuáles son las ventajas y desventajas de la extracción por solventes en comparación con otros métodos de producción de aceite de soja?",
-    "a": "La extracción por solventes tiene la ventaja de ser un método eficiente y económico para producir grandes cantidades de aceite de soja. Además, el aceite obtenido es de alta calidad y bajo contenido de ácidos grasos libres. Por otro lado, las principales desventajas son la toxicidad del hexano, el cual debe ser eliminado cuidadosamente del aceite resultante, y el impacto ambiental negativo asociado a su uso."
-  },
-  {
-    "topic": "ORAL 22",
-    "q": "¿Cuál es el proceso básico de producción en un alto horno y cuáles son las materias primas utilizadas en la producción de hierro?",
-    "a": "En el alto horno, el mineral de hierro, el coque (combustible) y la caliza (fundente) se cargan por la parte superior. A medida que los materiales descienden, se encuentran con una corriente de aire caliente que se inyecta por la parte inferior. El coque se quema, generando monóxido de carbono, que reduce el óxido de hierro a hierro. El hierro fundido se acumula en el fondo del horno, mientras que la escoria (subproducto de la reacción de la caliza con las impurezas del mineral) flota sobre el hierro. El hierro fundido y la escoria se extraen por separado. Las materias primas utilizadas son mineral de hierro, coque y caliza."
-  },
-  {
-    "topic": "ORAL 22",
-    "q": "¿Qué es la reacción de reducción del hierro y cómo se lleva a cabo en el proceso siderúrgico?",
-    "a": "La reacción de reducción del hierro es el proceso químico en el que el óxido de hierro se transforma en hierro metálico mediante la eliminación de oxígeno. En el alto horno, esta reacción se lleva a cabo principalmente por el monóxido de carbono (CO), que se forma a partir de la combustión del coque. El CO reacciona con el óxido de hierro, produciendo hierro y dióxido de carbono (CO2)."
-  },
-  {
-    "topic": "ORAL 22",
-    "q": "¿Cómo se preparan los pellets de hierro y cuáles son los pasos del proceso de producción?",
-    "a": "Los pellets de hierro se preparan a partir de finos de mineral de hierro. Los pasos del proceso incluyen: 1. Molienda: El mineral de hierro se muele hasta obtener un polvo fino. 2. Mezclado: El polvo se mezcla con un aglutinante (como bentonita) y agua. 3. Peletización: La mezcla se forma en pequeñas esferas (pellets) en un tambor giratorio o disco peletizador. 4. Secado y cocción (induración): Los pellets se secan y luego se calientan a altas temperaturas en un horno (como un horno de parrilla y horno rotatorio) para endurecerlos y mejorar su resistencia."
-  },
-  {
-    "topic": "ORAL 22",
-    "q": "¿Qué se entiende por importación de hierro y cuáles son los beneficios y desventajas de esta práctica?",
-    "a": "La importación de hierro se refiere a la compra de hierro o productos de hierro de otros países. Beneficios: puede asegurar el suministro de hierro si la producción interna es insuficiente, puede reducir los costos si el hierro importado es más barato, y puede mejorar la calidad si se importa hierro de alta pureza. Desventajas: puede generar dependencia de otros países, puede afectar la producción y el empleo en la industria siderúrgica nacional, y puede estar sujeta a aranceles o restricciones comerciales."
-  },
-  {
-    "topic": "ORAL 22",
-    "q": "¿Qué son los tableros de madera y cuáles son sus principales características y usos?",
-    "a": "Los tableros de madera son productos manufacturados a partir de fibras, partículas o chapas de madera unidas con adhesivos. Sus principales características incluyen: uniformidad, estabilidad dimensional, resistencia, y facilidad de trabajo. Se utilizan ampliamente en la fabricación de muebles, construcción (pisos, paredes, techos), revestimientos, embalajes y carpintería en general."
-  },
-  {
-    "topic": "ORAL 22",
-    "q": "¿Cuáles son las ventajas de los tableros de madera en comparación con la madera maciza?",
-    "a": "Los tableros de madera ofrecen varias ventajas sobre la madera maciza, incluyendo: mayor estabilidad dimensional (menos propensos a deformarse con cambios de humedad), mejor aprovechamiento de la madera (utilizan recortes y maderas de menor calidad), menor costo, y mayor uniformidad en sus propiedades. También pueden ser más sostenibles al usar residuos de madera."
-  },
-  {
-    "topic": "ORAL 22",
-    "q": "¿Cómo se pueden mejorar las propiedades de los tableros de madera?",
-    "a": "Para mejorar las propiedades de los tableros de madera se pueden tomar medidas como utilizar adhesivos más resistentes o modificar la composición y estructura del tablero. También se pueden aplicar tratamientos superficiales como barnices o pinturas para mejorar su resistencia a la humedad y otros factores ambientales."
-  },
-  {
-    "topic": "ORAL 23",
-    "q": "¿Qué es el análisis sistémico y cómo se aplica en la industria?",
-    "a": "El análisis sistémico es un enfoque que considera a una organización o proceso como un sistema interconectado de partes, donde cada componente influye en los demás y en el funcionamiento general. En la industria, se aplica para comprender y optimizar procesos complejos, identificar cuellos de botella, mejorar la eficiencia, resolver problemas de manera integral y anticipar impactos de decisiones. Permite ver la \"fotografía completa\" en lugar de centrarse solo en partes individuales."
-  },
-  {
-    "topic": "ORAL 23",
-    "q": "¿Cómo se calcula el PBI y qué relación tiene con la industria?",
-    "a": "El PBI (Producto Bruto Interno) se calcula sumando el valor monetario de todos los bienes y servicios finales producidos en un país durante un período determinado (generalmente un año). Se puede calcular de tres formas: el método del gasto, el método del ingreso y el método del valor agregado. La industria es un componente clave del PBI, ya que incluye la producción de manufacturas, minería, construcción y energía. Un crecimiento industrial sólido contribuye directamente al aumento del PBI y al desarrollo económico."
-  },
-  {
-    "topic": "ORAL 23",
-    "q": "¿Cuáles son los procesos involucrados en la producción de gaseosas?",
-    "a": "Los procesos involucrados en la producción de gaseosas incluyen: 1. Tratamiento del agua: El agua es el ingrediente principal y se purifica para asegurar su calidad. 2. Mezcla de ingredientes: Se disuelven azúcar (o edulcorantes), saborizantes, colorantes y otros aditivos en el agua. 3. Carbonatación: Se inyecta dióxido de carbono (CO2) en la mezcla bajo presión para crear las burbujas. 4. Envasado: La bebida carbonatada se envasa en botellas o latas. 5. Sellado y etiquetado: Los envases se sellan herméticamente y se etiquetan."
-  },
-  {
-    "topic": "ORAL 23",
-    "q": "¿Qué es la industria olivícola y cuáles son sus principales procesos?",
-    "a": "La industria olivícola se dedica al cultivo del olivo y a la producción de productos derivados de la aceituna, como aceite de oliva y aceitunas de mesa. Sus principales procesos incluyen: 1. Cultivo y cosecha: Cuidado de los olivos y recolección de las aceitunas. 2. Recepción y limpieza: Las aceitunas se limpian y clasifican. 3. Molienda y batido: Las aceitunas se muelen y la pasta resultante se bate para liberar el aceite. 4. Extracción de aceite: El aceite se separa del alpeorujo (parte sólida) y del agua. Esto puede ser por centrifugación o prensado. 5. Almacenamiento y envasado: El aceite se decanta, filtra y almacena antes de ser envasado."
-  },
-  {
-    "topic": "ORAL 23",
-    "q": "¿Cómo se tratan los efluentes del agua del aceite y del agua para lavar la aceituna?",
-    "a": "Los efluentes de la industria olivícola, tanto del agua de lavado de aceitunas como del agua de vegetación (alpechín) generada durante la extracción de aceite, son ricos en materia orgánica y fenoles. Su tratamiento es crucial antes del vertido. Métodos comunes incluyen: 1. **Lagunaje**: Sistemas de estanques donde el agua se trata de forma natural mediante procesos biológicos. 2. **Oxidación biológica**: Uso de microorganismos para degradar la materia orgánica en reactores. 3. **Separación física/química**: Procesos como la floculación y la coagulación para eliminar sólidos y contaminantes. 4. **Compostaje**: El alpeorujo (residuo sólido) puede compostarse para producir fertilizante. 5. **Reutilización**: En algunos casos, el agua tratada puede reutilizarse para riego si cumple con los estándares de calidad."
-  },
-  {
-    "topic": "ORAL 23",
-    "q": "¿Qué tipos de cemento se utilizan en Mendoza y por qué?",
-    "a": "En Mendoza se utiliza principalmente cemento Portland debido a sus propiedades físicas y químicas que lo hacen adecuado para su uso en construcciones civiles e industriales. El cemento Portland es un tipo de cemento hidráulico que fragua y endurece al reaccionar con el agua. Es versátil y se utiliza en una amplia gama de aplicaciones de construcción."
-  },
-  {
-    "topic": "ORAL 24: Industria de bebidas",
-    "q": "¿Cuáles son los ingredientes principales en la producción de las gaseosas y cómo se lleva a cabo el proceso?",
-    "a": "Los ingredientes principales en la producción de las gaseosas son agua, azúcar, dióxido de carbono y saborizantes. El proceso de producción de gaseosas implica la mezcla de estos ingredientes en proporciones específicas, seguido de la carbonatación y el embotellado."
-  },
-  {
-    "topic": "ORAL 24: Industria de bebidas",
-    "q": "¿Cómo se pueden mejorar los procesos de producción para reducir el impacto ambiental?",
-    "a": "Los procesos de producción de gaseosas se pueden mejorar para reducir el impacto ambiental mediante la implementación de tecnologías más eficientes en el uso de energía y agua, así como la reducción de residuos y emisiones de gases de efecto invernadero."
-  },
-  {
-    "topic": "ORAL 24: Industria olivícola",
-    "q": "¿Cuál es el proceso de lavado de la aceituna y qué se hace con el agua utilizada en este proceso?",
-    "a": "El proceso de lavado de la aceituna implica la eliminación de la suciedad y otros materiales extraños mediante el uso de agua. El agua utilizada en este proceso se puede tratar y reutilizar para reducir el desperdicio de agua."
-  },
-  {
-    "topic": "ORAL 24: Industria olivícola",
-    "q": "¿Cuáles son los tratamientos de efluentes del agua del aceite y por qué son necesarios?",
-    "a": "Los tratamientos de efluentes del agua del aceite son necesarios para reducir la contaminación del agua y proteger el medio ambiente. Se pueden utilizar tecnologías de tratamiento de aguas residuales, como la oxidación química y biológica, para eliminar los contaminantes."
-  },
-  {
-    "topic": "ORAL 24: Industria olivícola",
-    "q": "¿Cómo se puede mejorar la eficiencia energética en la producción de aceite de oliva?",
-    "a": "La eficiencia energética en la producción de aceite de oliva se puede mejorar mediante la implementación de tecnologías de recuperación de energía, la optimización del uso de energía y la reducción de pérdidas de calor en el proceso de producción."
-  },
-  {
-    "topic": "ORAL 24: Industria de conservas",
-    "q": "¿Qué son las conservas de tomate y cuál es el proceso de producción?",
-    "a": "Las conservas de tomate son productos alimenticios enlatados que se elaboran a partir de tomates frescos. El proceso de producción implica el lavado, pelado, triturado y cocción de los tomates, seguido de la enlatado y el sellado."
-  },
-  {
-    "topic": "ORAL 24: Industria de conservas",
-    "q": "¿Cuáles son los principales desafíos en la producción de conservas de alimentos y cómo se pueden abordar?",
-    "a": "Los principales desafíos en la producción de conservas de alimentos incluyen la reducción del desperdicio de alimentos, la garantía de la calidad y la seguridad alimentaria, así como la minimización del impacto ambiental. Se pueden abordar mediante la implementación de tecnologías más eficientes, la optimización de los procesos y la gestión adecuada de los residuos."
-  },
-  {
-    "topic": "ORAL 24: Industria petroquímica",
-    "q": "¿Qué es la petroquímica y cuál es su importancia en la industria?",
-    "a": "La petroquímica es la rama de la industria que se encarga de la transformación del petróleo y el gas natural en productos químicos. Su importancia radica en que provee materias primas para una amplia gama de industrias, incluyendo plásticos, fertilizantes, fibras sintéticas, productos farmacéuticos y detergentes, entre otros."
-  },
-  {
-    "topic": "ORAL 24: Industria petroquímica",
-    "q": "¿Cuáles son los principales productos de la petroquímica y para qué se utilizan?",
-    "a": "Los principales productos de la petroquímica incluyen etileno, propileno, butadieno, benceno, tolueno y xileno. Se utilizan como bloques de construcción para producir plásticos (polietileno, polipropileno, PVC), caucho sintético, fibras (nylon, poliéster), detergentes, disolventes y una variedad de otros productos químicos."
-  },
-  {
-    "topic": "ORAL 24: Industria petroquímica",
-    "q": "¿Cómo se puede reducir el impacto ambiental en la producción de productos petroquímicos?",
-    "a": "El impacto ambiental en la producción de productos petroquímicos se puede reducir mediante la implementación de tecnologías más limpias, la optimización del uso de energía y agua, la reducción de emisiones de gases de efecto invernadero, la gestión adecuada de residuos y la promoción del reciclaje."
-  },
-  {
-    "topic": "ORAL 24: Industria siderúrgica",
-    "q": "¿Cuál es el proceso de producción en la industria siderúrgica y cuáles son las principales temperaturas involucradas?",
-    "a": "El proceso de producción en la industria siderúrgica involucra la transformación de mineral de hierro en acero. El proceso comienza con la extracción del mineral de hierro de las minas y su procesamiento en altos hornos a temperaturas superiores a los 1,500°C. Luego, el hierro fundido se somete a un proceso de afinado para eliminar impurezas y ajustar la composición química antes de su transformación en acero."
-  },
-  {
-    "topic": "ORAL 24: Industria siderúrgica",
-    "q": "¿Cómo se produce el sinter en la industria siderúrgica y para qué se utiliza?",
-    "a": "El sinter se produce a partir de la aglomeración de finos de mineral de hierro y otros materiales a través de un proceso de calentamiento y compactación. El sinter se utiliza como materia prima en el alto horno para producir hierro fundido. También se utiliza como material de carga en la producción de acero."
-  },
-  {
-    "topic": "ORAL 24: Industria siderúrgica",
-    "q": "¿Cuáles son los principales desafíos en la producción de acero y cómo se pueden abordar?",
-    "a": "Los principales desafíos en la producción de acero incluyen la reducción de emisiones de gases de efecto invernadero, la gestión de residuos, la optimización del uso de energía y la necesidad de innovar en tecnologías de producción. Se pueden abordar mediante la implementación de tecnologías más limpias, la mejora de la eficiencia energética, la inversión en investigación y desarrollo, y la promoción de la economía circular."
-  },
-  {
-    "topic": "ORAL 25: Industria vitivinícola",
-    "q": "¿Cuál es el proceso de producción de mosto concentrado?",
-    "a": "El proceso de producción de mosto concentrado implica la extracción del jugo de uva, su clarificación, y la eliminación de una parte significativa del agua mediante evaporación al vacío, lo que aumenta la concentración de azúcares y otros sólidos."
-  },
-  {
-    "topic": "ORAL 25: Industria vitivinícola",
-    "q": "¿Cómo se trata el agua en la industria vitivinícola?",
-    "a": "El tratamiento del agua en la industria vitivinícola incluye la purificación del agua de entrada para el lavado y otros procesos, y el tratamiento de los efluentes (como la vinaza y el agua de lavado) antes de su descarga o reutilización. Los métodos pueden incluir filtración, ozonización, tratamiento biológico y fisicoquímico."
-  },
-  {
-    "topic": "ORAL 25: Industria cementera",
-    "q": "¿Cuáles son los tipos de cemento utilizados en Mendoza y por qué?",
-    "a": "En Mendoza se utiliza principalmente cemento Portland debido a sus propiedades físicas y químicas que lo hacen adecuado para su uso en construcciones civiles e industriales. También se menciona el uso de cemento puzolánico."
-  },
-  {
-    "topic": "ORAL 25: Industria cementera",
-    "q": "¿Cómo se produce el cemento y cuáles son los procesos del horno rotatorio?",
-    "a": "El proceso productivo del cemento comienza con la extracción y trituración de materias primas (caliza, arcilla, yeso), que luego se mezclan para formar una pasta. Esta pasta se calienta en un horno rotatorio a temperaturas de hasta 1600°C, produciendo clínker. El clínker es enfriado y molido junto con yeso para obtener cemento."
-  },
-  {
-    "topic": "ORAL 25: Industria cementera",
-    "q": "¿Cuáles son las principales fábricas de cemento en Argentina?",
-    "a": "En Argentina hay varias fábricas de cemento ubicadas en diferentes provincias. Algunas de las principales empresas productoras de cemento son Loma Negra, Holcim y Cementos Avellaneda."
-  },
-  {
-    "topic": "ORAL 25: Industria metalmecánica",
-    "q": "¿Qué es la metalmecánica y cuál es su cadena de valor?",
-    "a": "La metalmecánica es una rama de la industria que se dedica a la transformación de metales para producir piezas y maquinarias. Su cadena de valor incluye procesos como el diseño, la fabricación, el ensamblaje y el mantenimiento de los productos."
-  },
-  {
-    "topic": "ORAL 25: Industria metalmecánica",
-    "q": "¿Cuáles son los tipos de procesos utilizados en la metalmecánica y cómo se compara con otras industrias como la automotriz?",
-    "a": "Los tipos de procesos utilizados en la metalmecánica incluyen el corte, el doblado, el torneado y el fresado de metales. La industria metalmecánica se compara con la industria automotriz y la maquinaria agrícola en cuanto a que ambas utilizan procesos similares para producir piezas y maquinarias."
-  },
-  {
-    "topic": "ORAL 25: Industria metalmecánica",
-    "q": "¿Cuál es el ciclo de vida del producto en la metalmecánica?",
-    "a": "El ciclo de vida del producto en la metalmecánica incluye etapas como el diseño, la fabricación, el uso y el reciclaje o disposición final del producto."
-  },
-  {
-    "topic": "ORAL 25: Industria cloro alcali",
-    "q": "¿Cómo funciona el proceso cloro alcali?",
-    "a": "En el proceso cloro alcali los electrones son transferidos desde el ánodo al cátodo a través del circuito externo. El cloro gas se evapora en el ánodo mientras que el hidrógeno gas se libera en el cátodo."
-  },
-  {
-    "topic": "ORAL 25: Industria cloro alcali",
-    "q": "¿Cómo varía la concentración de NaOH y salmuera en el proceso cloro alcali?",
-    "a": "En el proceso cloro alcali la concentración del NaOH aumenta en el cátodo debido a la reducción de los iones sodio mientras que la concentración de la salmuera disminuye en el ánodo debido a la oxidación de los iones cloruro."
-  },
-  {
-    "topic": "ORAL 25: Industria siderúrgica",
-    "q": "¿Qué es el arrabio y cuáles son los porcentajes de carburo en el convertidor LD?",
-    "a": "El arrabio es un producto intermedio en la producción de acero que se obtiene a partir del mineral de hierro en un alto horno. Los porcentajes de carburo en el convertidor LD dependen del tipo de arrabio utilizado y pueden variar entre 2% y 4%."
-  },
-  {
-    "topic": "ORAL 25: Industria siderúrgica",
-    "q": "¿Qué convertidores se utilizaban antes del LD y cuál es la diferencia clave del LD?",
-    "a": "Antes del LD se utilizaban convertidores Bessemer y Thomas que funcionaban con revestimientos ácidos. El LD utiliza un revestimiento básico para evitar la formación de silicatos."
-  },
-  {
-    "topic": "ORAL 25: Industria siderúrgica",
-    "q": "¿Cuáles son las ventajas de la colada continua en la producción de acero?",
-    "a": "Las ventajas de la colada continua en la producción de acero incluyen: Producción eficiente: Permite una producción continua de acero, lo que resulta en una mayor eficiencia y menos tiempo de inactividad. Ahorro de energía: Requiere menos energía para producir un producto final, reduciendo costos y huella de carbono. Mejora de la calidad: Produce un producto final más uniforme y con menos defectos. Flexibilidad: Permite la producción de una amplia gama de productos de acero."
-  },
-  {
-    "topic": "ORAL 26",
-    "q": "¿Qué es el análisis sistémico y cómo se aplica en la industria?",
-    "a": "El análisis sistémico es un enfoque que considera a una organización o proceso como un sistema interconectado de partes, donde cada componente influye en los demás y en el funcionamiento general. En la industria, se aplica para comprender y optimizar procesos complejos, identificar cuellos de botella, mejorar la eficiencia, resolver problemas de manera integral y anticipar impactos de decisiones. Permite ver la \"fotografía completa\" en lugar de centrarse solo en partes individuales."
-  },
-  {
-    "topic": "ORAL 26",
-    "q": "¿Cómo se calcula el PBI y qué relación tiene con la industria?",
-    "a": "El PBI (Producto Bruto Interno) se calcula sumando el valor monetario de todos los bienes y servicios finales producidos en un país durante un período determinado (generalmente un año). Se puede calcular de tres formas: el método del gasto, el método del ingreso y el método del valor agregado. La industria es un componente clave del PBI, ya que incluye la producción de manufacturas, minería, construcción y energía. Un crecimiento industrial sólido contribuye directamente al aumento del PBI y al desarrollo económico."
-  },
-  {
-    "topic": "ORAL 26",
-    "q": "¿Cuáles son los procesos involucrados en la producción de gaseosas?",
-    "a": "Los procesos involucrados en la producción de gaseosas incluyen: 1. Tratamiento del agua: El agua es el ingrediente principal y se purifica para asegurar su calidad. 2. Mezcla de ingredientes: Se disuelven azúcar (o edulcorantes), saborizantes, colorantes y otros aditivos en el agua. 3. Carbonatación: Se inyecta dióxido de carbono (CO2) en la mezcla bajo presión para crear las burbujas. 4. Envasado: La bebida carbonatada se envasa en botellas o latas. 5. Sellado y etiquetado: Los envases se sellan herméticamente y se etiquetan."
-  },
-  {
-    "topic": "ORAL 26",
-    "q": "¿Qué es la industria olivícola y cuáles son sus principales procesos?",
-    "a": "La industria olivícola se dedica al cultivo del olivo y a la producción de productos derivados de la aceituna, como aceite de oliva y aceitunas de mesa. Sus principales procesos incluyen: 1. Cultivo y cosecha: Cuidado de los olivos y recolección de las aceitunas. 2. Recepción y limpieza: Las aceitunas se limpian y clasifican. 3. Molienda y batido: Las aceitunas se muelen y la pasta resultante se bate para liberar el aceite. 4. Extracción de aceite: El aceite se separa del alpeorujo (parte sólida) y del agua. Esto puede ser por centrifugación o prensado. 5. Almacenamiento y envasado: El aceite se decanta, filtra y almacena antes de ser envasado."
-  },
-  {
-    "topic": "ORAL 26",
-    "q": "¿Cómo se tratan los efluentes del agua del aceite y del agua para lavar la aceituna?",
-    "a": "Los efluentes de la industria olivícola, tanto del agua de lavado de aceitunas como del agua de vegetación (alpechín) generada durante la extracción de aceite, son ricos en materia orgánica y fenoles. Su tratamiento es crucial antes del vertido. Métodos comunes incluyen: 1. **Lagunaje**: Sistemas de estanques donde el agua se trata de forma natural mediante procesos biológicos. 2. **Oxidación biológica**: Uso de microorganismos para degradar la materia orgánica en reactores. 3. **Separación física/química**: Procesos como la floculación y la coagulación para eliminar sólidos y contaminantes. 4. **Compostaje**: El alpeorujo (residuo sólido) puede compostarse para producir fertilizante. 5. **Reutilización**: En algunos casos, el agua tratada puede reutilizarse para riego si cumple con los estándares de calidad."
-  },
-  {
-    "topic": "ORAL 26",
-    "q": "¿Cuáles son los principales procesos en la siderúrgica antes de la colada?",
-    "a": "Los principales procesos en la siderúrgica antes de la colada incluyen la preparación de las materias primas (mineral de hierro, coque, caliza), la producción de arrabio en el alto horno (que implica reducción y fusión), y el afinado del arrabio en convertidores (como el LD) para producir acero líquido, eliminando impurezas y ajustando la composición química."
-  },
-  {
-    "topic": "ORAL 26",
-    "q": "¿Cómo se encuentra el panorama del mercado del vino a nivel mundial y nacional?",
-    "a": "El panorama del mercado del vino a nivel mundial y nacional varía según el país y la región, pero en general se caracteriza por una fuerte competencia entre los países productores y una creciente demanda de vinos de alta calidad. A nivel mundial, se observa una tendencia hacia el consumo de vinos premium y una mayor preocupación por la sostenibilidad y la producción orgánica. A nivel nacional, el mercado del vino puede verse afectado por factores como el poder adquisitivo de los consumidores, las políticas fiscales y las tendencias de consumo. En Argentina, el mercado del vino ha experimentado un crecimiento en los últimos años, impulsado por el aumento de las exportaciones y el consumo interno."
-  },
-  {
-    "topic": "ORAL 26",
-    "q": "¿Qué es la ley de borras y cuál es el acuerdo entre San Juan y Mendoza?",
-    "a": "La ley de borras es una normativa que regula el manejo de las borras, que son los residuos sólidos que se obtienen en la producción de vino. El acuerdo entre San Juan y Mendoza establece pautas para el tratamiento y la disposición de las borras, con el objetivo de proteger el medio ambiente y promover la sostenibilidad en la industria vitivinícola."
-  },
-  {
-    "topic": "ORAL 30",
-    "q": "¿Cuáles son los procesos involucrados en la producción siderúrgica hasta antes de la colada?",
-    "a": "Los procesos involucrados en la producción siderúrgica hasta antes de la colada incluyen la extracción del mineral de hierro, su transporte a las plantas siderúrgicas, su transformación en arrabio mediante el proceso del alto horno y su posterior refinamiento para producir acero."
-  },
-  {
-    "topic": "ORAL 30",
-    "q": "¿Cuál es el panorama del mercado del vino a nivel mundial y nacional?",
-    "a": "El panorama del mercado del vino a nivel mundial y nacional varía según el país y la región, pero en general se caracteriza por una fuerte competencia entre los países productores y una creciente demanda de vinos de alta calidad."
-  },
-  {
-    "topic": "ORAL 30",
-    "q": "¿Qué es la ley de borras y cuál es el acuerdo entre San Juan y Mendoza?",
-    "a": "La ley de borras es una normativa que regula el manejo de las borras, que son los residuos sólidos que se obtienen en la producción de vino. El acuerdo entre San Juan y Mendoza establece pautas para el tratamiento y la disposición de las borras, con el objetivo de proteger el medio ambiente y promover la sostenibilidad en la industria vitivinícola."
-  },
-  {
-    "topic": "ORAL 30",
-    "q": "¿Cuáles son los 5 procesos involucrados en la producción del tomate?",
-    "a": "Los 5 procesos involucrados en la producción del tomate son: 1. Cosecha: Recolección de los tomates en el campo. 2. Recepción y clasificación: Los tomates se reciben en la planta y se clasifican por calidad y tamaño. 3. Lavado y triturado: Los tomates se lavan para eliminar la suciedad y se trituran para obtener una pasta. 4. Cocción y concentración: La pasta se cuece y se concentra para eliminar el exceso de agua. 5. Envasado y sellado: El concentrado de tomate se envasa en recipientes adecuados y se sella herméticamente."
-  },
-  {
-    "topic": "ORAL 30",
-    "q": "¿Cuál es el proceso para producir mosto concentrado?",
-    "a": "El proceso para producir mosto concentrado implica la extracción del jugo de la uva, su clarificación para eliminar impurezas, y la posterior concentración mediante evaporación al vacío, lo que reduce el contenido de agua y aumenta la concentración de azúcares y otros sólidos."
-  },
-  {
-    "topic": "ORAL 30",
-    "q": "¿Qué es el mistela y cómo se produce en otros países?",
-    "a": "La mistela es una bebida alcohólica que se obtiene mezclando mosto de uva con alcohol vínico, impidiendo así su fermentación. En otros países, la producción puede variar, pero generalmente implica la fortificación del mosto fresco con alcohol para preservar su dulzura natural."
-  },
-  {
-    "topic": "ORAL 30",
-    "q": "¿Qué es el mosto y para qué se utiliza?",
-    "a": "El mosto es el jugo de la uva recién prensada que aún no ha fermentado. Se utiliza principalmente para la producción de vino, donde sus azúcares se convierten en alcohol. También se puede utilizar para producir mosto concentrado, jugos de uva y arrope, o como edulcorante."
-  },
-  {
-    "topic": "ORAL 30",
-    "q": "¿Cómo se tratan los efluentes en la industria?",
-    "a": "El tratamiento de efluentes en la industria generalmente implica una combinación de procesos físicos, químicos y biológicos para eliminar contaminantes antes de la descarga o reutilización. Los métodos específicos dependen del tipo de industria y la composición del efluente, e incluyen: filtración, sedimentación, coagulación-floculación, aireación, digestión anaeróbica y membranas, entre otros."
-  },
-  {
-    "topic": "ORAL 30",
-    "q": "¿Cuál es la situación de la industria maderera en Mendoza y cuáles son las principales empresas del sector?",
-    "a": "La situación de la industria maderera en Mendoza no es tan prominente como en otras provincias con mayores recursos forestales. Sin embargo, existen empresas dedicadas al procesamiento de madera y la fabricación de productos derivados. Las principales empresas del sector pueden incluir aserraderos, fabricantes de muebles y tableros. No se especifican nombres de empresas en el texto."
-  },
-  {
-    "topic": "ORAL 30",
-    "q": "¿Qué tipos de madera se utilizan en la carpintería y cómo afecta el uso del CCA al medio ambiente?",
-    "a": "En carpintería se utilizan diversos tipos de madera, tanto duras (roble, nogal) como blandas (pino, abeto), dependiendo de la aplicación. El CCA (Cobre, Cromo, Arsénico) es un preservante de madera que, si bien protege contra insectos y hongos, contiene arsénico, una sustancia tóxica. Su uso puede afectar el medio ambiente al lixiviar arsénico al suelo y al agua, especialmente si la madera tratada no se desecha adecuadamente al final de su vida útil."
-  },
-  {
-    "topic": "ORAL 30",
-    "q": "¿Cuál es la situación actual de la industria automotriz y cómo está afectando a las exportaciones e importaciones?",
-    "a": "La situación actual de la industria automotriz está sujeta a factores globales como la escasez de semiconductores, los cambios en las cadenas de suministro, la transición hacia vehículos eléctricos y las fluctuaciones económicas. Estos factores afectan las exportaciones e importaciones, ya sea por limitaciones en la producción, cambios en la demanda de mercados externos o la necesidad de importar componentes clave."
-  },
-  {
-    "topic": "ORAL 30",
-    "q": "¿Qué es Fecovita y quiénes la conforman?",
-    "a": "Fecovita (Federación de Cooperativas Vitivinícolas Argentinas) es una organización que agrupa a cooperativas vitivinícolas de Argentina con el objetivo de promover el desarrollo del sector vitivinícola. Está conformada por cooperativas vitivinícolas de Argentina. Su presidente actual es Eduardo Sancho."
-  },
-  {
-    "topic": "ORAL 31",
-    "q": "¿Qué son los probióticos?",
-    "a": "Los probióticos son microorganismos vivos que, cuando se administran en cantidades adecuadas, confieren un beneficio para la salud del huésped. Se encuentran comúnmente en alimentos fermentados y suplementos."
-  },
-  {
-    "topic": "ORAL 31",
-    "q": "¿Cómo se realizan las plantaciones de vid en la industria vitivinícola?",
-    "a": "Las plantaciones de vid en la industria vitivinícola se realizan seleccionando variedades de uva adecuadas para el clima y el suelo de la región, preparando el terreno y plantando las vides en hileras. También se realizan labores culturales como la poda y el riego para asegurar un buen crecimiento de las plantas."
-  },
-  {
-    "topic": "ORAL 31",
-    "q": "¿Qué características debe tener la lana utilizada en la industria textil?",
-    "a": "La lana utilizada en la industria textil debe tener características como suavidad, resistencia y elasticidad para ser adecuada para la producción de hilos y tejidos. También se valoran propiedades como el brillo y el color natural de la fibra."
-  },
-  {
-    "topic": "ORAL 31",
-    "q": "¿Cómo influyen las condiciones climáticas en la calidad de la aceituna y del vino?",
-    "a": "Las condiciones climáticas pueden influir en la calidad de la aceituna y del vino ya que afectan el crecimiento y desarrollo de las plantas. Factores como la temperatura, la humedad y la cantidad de lluvia pueden influir en la maduración de las frutas y en su contenido de azúcares y ácidos."
-  },
-  {
-    "topic": "ORAL 31",
-    "q": "¿Cuáles son las principales empresas productoras de cemento en Argentina?",
-    "a": "Las principales empresas productoras de cemento en Argentina son Loma Negra, Holcim y Cementos Avellaneda."
-  },
-  {
-    "topic": "ESCRITO 1",
-    "q": "¿Qué es el fracking y cuál es el principal país que lo utiliza? ¿Qué condiciones deben cumplirse para que sea rentable en Argentina?",
-    "a": "El fracking (o fracturación hidráulica) es una técnica para extraer gas y petróleo de formaciones rocosas subterráneas mediante la inyección de fluidos a alta presión. El principal país que lo utiliza es Estados Unidos. Para que sea rentable en Argentina, deben cumplirse condiciones como la presencia de yacimientos no convencionales con potencial, infraestructura adecuada, precios internacionales favorables y un marco regulatorio estable que incentive la inversión."
-  },
-  {
-    "topic": "ESCRITO 1",
-    "q": "Ubique en un mapa de Argentina los parques forestales del sector maderero, tres yacimientos mineros (incluyendo Gualcamayo), las centrales nucleares y la hidroeléctrica de mayor potencia.",
-    "a": "Respuesta pendiente. Generado con IA. (Esta pregunta requiere una visualización en mapa que no puedo generar directamente, pero puedo describir la ubicación general de algunos elementos). Parques forestales: Principalmente en el noreste (Misiones, Corrientes) y Patagonia. Yacimientos mineros: Gualcamayo (San Juan), Bajo de la Alumbrera (Catamarca), Veladero (San Juan). Centrales nucleares: Atucha I y II (Buenos Aires), Embalse (Córdoba). Hidroeléctrica de mayor potencia: Yacyretá (Entre Ríos/Corrientes, en la frontera con Paraguay)."
-  },
-  {
-    "topic": "ESCRITO 1",
-    "q": "Describa y dibuje el proceso de Hall-Heroult para la producción de aluminio, incluyendo sus reacciones químicas.",
-    "a": "Respuesta pendiente. Generado con IA. (Esta pregunta requiere un dibujo que no puedo generar directamente). El proceso de Hall-Heroult es el método principal para producir aluminio primario. Consiste en la electrólisis de alúmina (óxido de aluminio, Al2O3) disuelta en criolita fundida (Na3AlF6) en celdas electrolíticas. Reacciones: En el ánodo (carbono), el oxígeno de la alúmina reacciona con el carbono para formar CO2: 2Al2O3 + 3C → 4Al + 3CO2. En el cátodo (carbono), los iones de aluminio se reducen a aluminio metálico: Al3+ + 3e- → Al."
-  },
-  {
-    "topic": "ESCRITO 1",
-    "q": "Si una empresa vitivinícola tiene 1 millón de kg de uva, ¿qué productos y subproductos se pueden obtener teniendo en cuenta los acuerdos y rendimientos?",
-    "a": "Respuesta pendiente. Generado con IA. (Los rendimientos específicos pueden variar, pero se pueden dar ejemplos de productos y subproductos). De 1 millón de kg de uva se pueden obtener: Producto principal: Vino (la cantidad dependerá del rendimiento de vino por kg de uva, generalmente entre 650-750 litros por tonelada). Subproductos: Orjo (parte sólida restante después del prensado, que puede usarse para destilación de alcohol o fertilizante), Borras (sedimentos del vino, para alcohol o fertilizante), Escobajos (racimos, para compostaje), y agua residual de lavado y procesos."
-  },
-  {
-    "topic": "ESCRITO 1",
-    "q": "Describa la cadena de valor de la industria automotriz y de maquinaria agrícola. ¿Cómo afecta el contexto global a estas industrias?",
-    "a": "Respuesta pendiente. Generado con IA. (La cadena de valor es compleja y el impacto global es amplio). Cadena de valor automotriz: Investigación y desarrollo, diseño, producción de componentes (motores, carrocerías, electrónica), ensamblaje de vehículos, distribución, ventas, posventa (mantenimiento, repuestos), reciclaje. Cadena de valor maquinaria agrícola: Diseño, fabricación de componentes (motores, transmisiones, implementos), ensamblaje de maquinaria, distribución, ventas, posventa, financiamiento. El contexto global (escasez de semiconductores, conflictos geopolíticos, fluctuación de precios de materias primas, cambio a vehículos eléctricos/maquinaria más eficiente, disrupciones en cadenas de suministro, políticas comerciales) afecta a ambas industrias con retrasos en la producción, aumento de costos, cambios en la demanda y la necesidad de adaptar estrategias de inversión y producción."
-  },
-  {
-    "topic": "ESCRITO 1",
-    "q": "Muestre gráficos de torta que representen las importaciones y exportaciones del sector externo.",
-    "a": "Respuesta pendiente. Generado con IA. (No puedo generar gráficos directamente, pero puedo describir la información que contendrían). Un gráfico de torta de exportaciones del sector externo mostraría la distribución porcentual de las exportaciones por tipo de producto (ej., productos primarios, manufacturas de origen agropecuario, manufacturas de origen industrial, combustibles y energía). Un gráfico de torta de importaciones mostraría la distribución porcentual de las importaciones por tipo de bien (ej., bienes de capital, bienes intermedios, combustibles y lubricantes, bienes de consumo, vehículos)."
-  },
-  {
-    "topic": "ESCRITO 1",
-    "q": "Describa el funcionamiento de un alto horno, incluyendo qué materiales entran y qué productos salen. Explique para qué sirve cada cosa.",
-    "a": "Respuesta pendiente. Generado con IA. (El funcionamiento ya fue descrito en ORAL 22). En un alto horno, entran: Mineral de hierro (fuente de hierro), Coque (combustible y agente reductor), Caliza (fundente para eliminar impurezas). Salen: Arrabio (hierro fundido, principal producto para la producción de acero), Escoria (subproducto de las impurezas del mineral y la caliza, usada en cemento o construcción), Gases (CO, CO2, N2, que pueden reutilizarse como combustible)."
-  },
-  {
-    "topic": "ESCRITO 1",
-    "q": "¿Qué es el hidrógeno verde y dónde se llevará a cabo el proyecto?",
-    "a": "El hidrógeno verde es hidrógeno producido mediante electrólisis del agua, utilizando electricidad generada exclusivamente a partir de fuentes de energía renovables (eólica, solar, etc.), lo que lo hace libre de emisiones de carbono. El proyecto mencionado se llevará a cabo en la provincia de Río Negro, Argentina."
-  },
-  {
-    "topic": "ESCRITO 1",
-    "q": "Describa el proceso de producción de aceitunas negras de mesa.",
-    "a": "El proceso de producción de aceitunas negras de mesa implica varias etapas: 1. Cosecha: Las aceitunas se cosechan cuando han alcanzado su plena maduración y coloración negra. 2. Curado: Las aceitunas se sumergen en salmuera (agua con sal) para eliminar el amargor y fermentar. Este proceso puede durar varias semanas o meses. 3. Oxidación (para algunas variedades): Algunas variedades de aceitunas verdes se oscurecen artificialmente mediante un proceso de oxidación con aireación en salmuera alcalina. 4. Lavado y selección: Las aceitunas se lavan para eliminar el exceso de sal y se seleccionan por tamaño y calidad. 5. Envasado: Se envasan en salmuera, agua, o aceite, y se pasteurizan para su conservación."
-  },
-  {
-    "topic": "ESCRITO 1",
-    "q": "¿Cuáles son las principales empresas aceiteras? Nombre los principales productores y exportadores de soja y trigo.",
-    "a": "Respuesta pendiente. Generado con IA. (Las empresas aceiteras varían. Productores y exportadores son conocidos). Principales empresas aceiteras en Argentina incluyen a Vicentín (actualmente en reestructuración), AGD (Aceitera General Deheza), Bunge, Cargill, Dreyfus. Principales productores y exportadores de soja: Brasil, Estados Unidos, Argentina. Principales productores y exportadores de trigo: Rusia, Unión Europea, Canadá, Estados Unidos, Australia, Argentina."
-  },
-  {
-    "topic": "ESCRITO 1",
-    "q": "Describa las diferentes formas en que los países pueden integrarse entre sí.",
-    "a": "Respuesta pendiente. Generado con IA. Las formas de integración económica entre países incluyen: 1. **Acuerdo de comercio preferencial**: Reducción arancelaria en ciertos productos. 2. **Área de libre comercio**: Eliminación de aranceles entre los miembros, pero cada uno mantiene su propia política comercial externa. 3. **Unión aduanera**: Área de libre comercio más una política comercial externa común (arancel externo común). 4. **Mercado común**: Unión aduanera más libre circulación de factores de producción (capital y trabajo). 5. **Unión económica**: Mercado común más armonización de políticas económicas y fiscales. 6. **Unión económica y monetaria**: Unión económica más una moneda única y política monetaria común (ej., Eurozona)."
-  },
-  {
-    "topic": "ESCRITO 2",
-    "q": "Dibuje un diagrama de flujo para la producción de concentrado de tomate y clasifique los productos de esa industria.",
-    "a": "Respuesta pendiente. Generado con IA. (No puedo generar diagramas, pero puedo describir el flujo y la clasificación). Diagrama de flujo: Recepción de tomate -> Lavado -> Selección -> Triturado -> Precalentamiento -> Extracción de jugo -> Refinado -> Evaporación/Concentración -> Envasado aséptico. Productos de la industria del tomate: Concentrado de tomate (pasta, puré), Tomates enlatados (enteros, troceados, triturados), Salsas de tomate, Ketchup, Jugo de tomate. Subproductos: Pieles y semillas (para alimento animal, aceite de semilla de tomate, o compost)."
-  },
-  {
-    "topic": "ESCRITO 2",
-    "q": "¿En qué consiste el proceso de 'encalado y carbonatado' en la producción de azúcar?",
-    "a": "El proceso de encalado y carbonatado en la producción de azúcar es una etapa de clarificación del jugo de caña. Consiste en añadir cal (lechada de cal) al jugo para precipitar impurezas y luego inyectar dióxido de carbono (carbonatación) para precipitar el exceso de cal y las impurezas restantes en forma de carbonato de calcio, que luego se filtra. Este proceso mejora la pureza del jugo antes de la evaporación y cristalización."
-  },
-  {
-    "topic": "ESCRITO 2",
-    "q": "Nombre las 3 materias primas del ácido tartárico y los residuos de la industria del vino que se utilizan en su producción.",
-    "a": "Las 3 materias primas del ácido tartárico son: el tartrato ácido de potasio (cremor tártaro), la borra de vino (sedimentos) y la tarta de prensa (residuo sólido del prensado de la uva). Todos ellos son residuos de la industria del vino."
-  }
-]
-</script>
+<!-- Modal overlay -->
+<div id="overlay">
+  <div id="modal">
+    <span id="closeBtn">&times;</span>
+    <h2 id="modalQuestion"></h2>
+    <p id="modalAnswer"></p>
+  </div>
+</div>
 
+<script id="cardsData" type="application/json">
+  []
+</script>
 <script>
-// Parse JSON safely
+// Utiliza el bloque JSON para cargar tarjetas; aquí placeholder [] para mantener archivo liviano
 let cards=[];
-try{cards=JSON.parse(document.getElementById('cardsData').textContent);}catch(e){console.error('Error al parsear las tarjetas',e);}
+try{cards=JSON.parse(document.getElementById('cardsData').textContent);}catch(err){console.error('JSON error',err);}
 const topics=["Todas",...new Set(cards.map(c=>c.topic))];
 const select=document.getElementById('topicSelect');
-topics.forEach(t=>{const opt=document.createElement('option');opt.value=t;opt.textContent=t;select.appendChild(opt);});
+topics.forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=t;select.appendChild(o);});
 const deck=document.getElementById('deck');
-function render(topic){deck.innerHTML='';(topic==='Todas'?cards:cards.filter(c=>c.topic===topic)).forEach(({q,a})=>{const c=document.createElement('div');c.className='card';c.innerHTML=`<div class='inner'><div class='front'><strong>${q}</strong></div><div class='back'>${a}</div></div>`;c.onclick=()=>c.classList.toggle('flipped');deck.appendChild(c);});}
+// Modal refs
+const overlay=document.getElementById('overlay');
+const modalQ=document.getElementById('modalQuestion');
+const modalA=document.getElementById('modalAnswer');
+const closeBtn=document.getElementById('closeBtn');
+closeBtn.onclick=()=>overlay.style.display='none';
+window.addEventListener('keydown',e=>{if(e.key==='Escape')overlay.style.display='none';});
+
+function render(topic){deck.innerHTML='';
+  (topic==='Todas'?cards:cards.filter(c=>c.topic===topic)).forEach(({q,a})=>{
+    const card=document.createElement('div');card.className='card';
+    const isLong=a.length>400;
+    card.innerHTML=`<div class='inner'><div class='front'><strong>${q}</strong>${isLong?'<div style="margin-top:.5rem;font-size:.75rem;opacity:.75">(click para ver)</div>':''}</div><div class='back'>${a.replace(/\n/g,'<br>')}</div></div>`;
+    card.onclick=e=>{
+      if(isLong && card.classList.contains('flipped')){
+        // abrir modal con contenido completo
+        modalQ.textContent=q;
+        modalA.innerHTML=a.replace(/\n/g,'<br>');
+        overlay.style.display='flex';
+      }else{
+        card.classList.toggle('flipped');
+      }
+    };
+    deck.appendChild(card);
+  });
+}
 select.onchange=e=>render(e.target.value);
 render('Todas');
 </script>
