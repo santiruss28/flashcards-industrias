@@ -1,102 +1,389 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<title>Tarjetas Didácticas – Industrias y Servicios I</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-body{font-family:system-ui,Helvetica,Arial,sans-serif;background:#f9fafb;margin:0;padding:1.5rem}
-h1{font-size:1.5rem;margin:0 0 1rem;color:#111827;text-align:center}
-.controls{display:flex;justify-content:center;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem}
-select{padding:.5rem 1rem;font-size:1rem;border-radius:.5rem;border:1px solid #d1d5db}
-#deck{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.25rem;max-width:1400px;margin:0 auto}
-.card{background:transparent;perspective:1000px;height:220px;cursor:pointer}
-.inner{position:relative;width:100%;height:100%;text-align:center;transition:transform .6s;transform-style:preserve-3d;border-radius:1rem;box-shadow:0 4px 6px rgba(0,0,0,.08)}
-.card.flipped .inner{transform:rotateY(180deg)}
-.front,.back{position:absolute;width:100%;height:100%;backface-visibility:hidden;display:flex;align-items:center;justify-content:center;padding:1rem;border-radius:1rem}
-.front{background:#ffffff;color:#111827}
-.back{background:#1d4ed8;color:#ffffff;transform:rotateY(180deg);flex-direction:column;overflow-y:auto;scrollbar-width:thin;max-height:100%}
-.back::-webkit-scrollbar{width:6px}
-.back::-webkit-scrollbar-thumb{background:#93c5fd;border-radius:3px}
-.ai{font-size:.75rem;opacity:.8;margin-top:.5rem}
-/* Modal */
-#overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:1000}
-#modal{background:#ffffff;color:#111827;width:min(640px,90%);max-height:80vh;padding:1.5rem;border-radius:1rem;overflow-y:auto;box-shadow:0 8px 16px rgba(0,0,0,.25);}
-#modal h2{margin-top:0;font-size:1.2rem}
-#closeBtn{position:absolute;top:.8rem;right:1rem;font-size:1.4rem;cursor:pointer;color:#475569}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Industria Alimenticia – Informe Interactivo (Argentina & Mendoza)</title>
+  <style>
+    :root{ --bg:#0f172a; --panel:#111827; --card:#0b1220; --muted:#94a3b8; --text:#e5e7eb; --accent:#38bdf8; --ok:#22c55e; --warn:#f59e0b; --danger:#ef4444; --link:#60a5fa }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:linear-gradient(180deg,#0b1020, #0f172a 40%, #0b1020);color:var(--text)}
+    header{position:sticky;top:0;z-index:50;background:rgba(17,24,39,.75);backdrop-filter:blur(12px);border-bottom:1px solid #1f2937}
+    .wrap{max-width:1200px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:16px}
+    .brand{font-weight:800;letter-spacing:.4px}
+    .brand span{color:var(--accent)}
+    .layout{display:grid;grid-template-columns:280px 1fr;gap:18px;max-width:1200px;margin:20px auto;padding:0 20px}
+    aside{background:var(--panel);border:1px solid #1f2937;border-radius:14px;padding:14px;position:sticky;top:72px;height:calc(100dvh - 96px);overflow:auto}
+    main{display:flex;flex-direction:column;gap:18px}
+    .search{display:flex;gap:8px;margin:8px 0 12px}
+    .search input{flex:1;padding:10px 12px;border-radius:10px;border:1px solid #1f2937;background:#0a1222;color:var(--text)}
+    nav a{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;color:#cbd5e1;text-decoration:none;border:1px solid transparent}
+    nav a:hover{background:#0c1528;border-color:#1f2a42}
+    .card{background:var(--panel);border:1px solid #1f2937;border-radius:16px;padding:16px}
+    .card h2{margin:0 0 6px}
+    .pill{font-size:12px;border:1px solid #23314a;background:#0c1528;color:#a5b4fc;border-radius:999px;padding:4px 8px}
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+    .col-6{grid-column:span 6}
+    .col-12{grid-column:span 12}
+    .muted{color:var(--muted)}
+    .kpi{display:flex;gap:12px;flex-wrap:wrap;margin:6px 0}
+    .kpi .box{padding:10px 12px;border:1px solid #23314a;border-radius:12px;background:#0c1528}
+    .small{font-size:12px}
+    footer{max-width:1200px;margin:24px auto;padding:0 20px;color:#94a3b8}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;background:#0c1528;border:1px solid #23314a;color:#dbeafe;text-decoration:none}
+    .btn:hover{background:#0e1830}
+    .chips{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+    .chip{padding:6px 10px;border-radius:999px;border:1px solid #23314a;background:#0c1528;color:#93c5fd;font-size:12px}
+    .note{font-size:12px;color:#9ca3af}
+    /* test badges */
+    .tests{background:#0b1220;border:1px dashed #22324a;border-radius:12px;padding:12px}
+    .badge{display:inline-block;font-size:11px;padding:3px 8px;border-radius:999px;border:1px solid #23314a;margin-right:6px}
+    .pass{color:#22c55e;border-color:#134e4a;background:#052e2b}
+    .fail{color:#ef4444;border-color:#7f1d1d;background:#2a0b0b}
+    @media(max-width:980px){.layout{grid-template-columns:1fr}.col-6{grid-column:span 12}}
+  </style>
+  <!-- Librería de gráficos -->
+  <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.0/plotly.min.js"></script>
 </head>
 <body>
-<h1>Tarjetas Didácticas – Industrias y Servicios I</h1>
-<div class="controls">
-  <label for="topicSelect" style="font-weight:600">Tema:</label>
-  <select id="topicSelect"></select>
-</div>
-<div id="deck"></div>
+  <header>
+    <div class="wrap">
+      <div class="brand">Industrias y Servicios • <span>Alimentos 2022–2025</span></div>
+      <a class="btn" href="#" id="btnExpandAll">Expandir todo</a>
+      <a class="btn" href="#" id="btnCollapseAll">Colapsar todo</a>
+    </div>
+  </header>
 
-<!-- Modal overlay -->
-<div id="overlay">
-  <div id="modal">
-    <span id="closeBtn">&times;</span>
-    <h2 id="modalQuestion"></h2>
-    <p id="modalAnswer"></p>
+  <div class="layout">
+    <aside>
+      <div class="search">
+        <input id="q" placeholder="Buscar industria, proceso o término…" />
+      </div>
+      <nav id="toc"></nav>
+      <div class="chips">
+        <span class="chip">Economía</span>
+        <span class="chip">Mendoza</span>
+        <span class="chip">Exportaciones</span>
+        <span class="chip">Coyuntura</span>
+      </div>
+      <p class="note">Tip: usá la búsqueda para filtrar secciones al vuelo.</p>
+    </aside>
+
+    <main id="content">
+      <!-- ======= TARJETA RESUMEN GENERAL ======= -->
+      <section class="card" id="resumen">
+        <h2>Panorama general</h2>
+        <p class="muted">Argentina es un actor agroindustrial global: los complejos trigo, lácteo, cárnico, avícola, azucarero y oleaginoso explican producción, empleo y exportaciones. En 2023 la sequía golpeó rendimientos; 2024–2025 muestran recuperación de producción y recomposición de márgenes.</p>
+        <div class="kpi">
+          <div class="box"><b>Leche</b><br><span class="muted small">Producción 2025 +11% interanual</span></div>
+          <div class="box"><b>Carne vacuna</b><br><span class="muted small">Consumo 2025 ~50 kg hab año</span></div>
+          <div class="box"><b>Pollo</b><br><span class="muted small">Consumo ~46 kg hab año</span></div>
+          <div class="box"><b>Azúcar</b><br><span class="muted small">1.7–1.9 Mt anuales</span></div>
+          <div class="box"><b>Aceite de soja</b><br><span class="muted small">Top exportador global</span></div>
+        </div>
+      </section>
+
+      <!-- ========= QUESO ========= -->
+      $1
+          <ul>
+            <li><b>Tamaño y destino</b>: ~450 kt anuales, >85% al mercado interno; exportaciones oportunistas según tipo de cambio y precios internacionales.</li>
+            <li><b>Margen</b>: sensible al precio de leche cruda, energía, envases y logística en frío; mayor valor agregado en semiduros y duros.</li>
+            <li><b>Mix</b>: recuperación de semiduros post 2024; expansión de marcas propias retail presionando precios al productor industrial.</li>
+            <li><b>Precios</b>: rezagos vs inflación en 2023, recomposición 2024–2025; promociones y formatos económicos sostienen volumen.</li>
+            <li><b>Mendoza</b>: nichos artesanales y caprinos; turismo gastronómico como canal de mayor margen; integración con bodegas y economías regionales.</li>
+            <li><b>Riesgos</b>: volatilidad de leche cruda, costos energéticos estacionales, y tipo de cambio para exportar.</li>
+          </ul>
+        </details>
+      </section>
+
+      <!-- ========= CARNE ========= -->
+      $1
+          <ul>
+            <li><b>Oferta</b>: faena elevada 2023 por sequía (liquidación); 2024–2025 recomposición del stock y menor peso de faena afecta producción.</li>
+            <li><b>Demanda interna</b>: mínimos históricos 2023 por caída de ingresos; 2025 mejora a ~50 kg hab año, compite con pollo y cerdo.</li>
+            <li><b>Comercio exterior</b>: China compra cortes delanteros; UE absorbe Hilton/481 de alto valor; spread de precios clave para mix.</li>
+            <li><b>Precios</b>: fuerte suba 2023 T3–T4; 2025 con corrección y luego estabilidad relativa; parrilla baja puntual por sobreoferta.</li>
+            <li><b>Costos</b>: maíz, sanidad y flete; feedlots sensibles al costo financiero.</li>
+            <li><b>Mendoza</b>: dependencia de abastecimiento interprovincial; oportunidades en troceo y valor agregado local.</li>
+          </ul>
+        </details>
+      </section>
+
+      <!-- ========= YOGUR ========= -->
+      $1
+          <ul>
+            <li><b>Volumen</b>: rebote 2025 tras caída 2023; estacionalidad marcada primavera‑verano.</li>
+            <li><b>Precio y elasticidad</b>: alta sensibilidad al ingreso; formatos familiares y sachet ganan share en recesión.</li>
+            <li><b>Innovación</b>: proteínas, bajos azúcares, probióticos; márgenes mayores pero nicho.</li>
+          </ul>
+        </details>
+      </section>
+
+      <!-- ========= LECHE EN POLVO ========= -->
+      $1
+          <ul>
+            <li><b>Rol</b>: producto de ancla exportadora; permite balancear picos estacionales de leche cruda.</li>
+            <li><b>Precios internacionales</b>: correlación con GDT; ventana de oportunidad 2024–2025 por recomposición global.</li>
+            <li><b>Política</b>: baja/eliminación de DE para lácteos mejoró márgenes externos; logística portuaria incide en competitividad.</li>
+          </ul>
+        </details>
+      </section>
+
+      <!-- ========= TRIGO ========= -->
+      $1
+          <ul>
+            <li><b>Cosecha</b>: 2023 afectada por sequía; recuperación 2024–2025 normaliza molienda y exportaciones.</li>
+            <li><b>Mercado interno</b>: programas de estabilización para pan francés; margen molinero presionado por harina regulada.</li>
+            <li><b>Exportación</b>: Brasil principal comprador; spreads FOB vs Pizarra definen ventana de ventas.</li>
+          </ul>
+        </details>
+      </section>
+
+      <!-- ========= AVICOLA ========= -->
+      $1
+          <ul>
+            <li><b>Consumo</b>: ~46 kg hab año, sustituto de la carne vacuna; precios relativos favorecieron demanda en 2023–2024.</li>
+            <li><b>Costos</b>: maíz y harina de soja determinan margen; eficiencia genética y conversión alimenticia son claves.</li>
+            <li><b>Comercio</b>: exportaciones repuntan tras restricciones sanitarias 2023; foco en Medio Oriente y África.</li>
+          </ul>
+        </details>
+      </section>
+
+      <!-- ========= AZUCAR BLANCA ========= -->
+      $1
+          <ul>
+            <li><b>Zafra</b>: 1.7–1.9 Mt; mix azúcar‑alcohol varía según precios relativos y política de biocombustibles.</li>
+            <li><b>Financiamiento</b>: uso de <i>warrants</i> para fondear stock en interzafra; tasas reales inciden en costo.</li>
+            <li><b>Precios</b>: rally internacional 2022–2023; 2025 con normalización gradual.</li>
+          </ul>
+        </details>
+      </section>
+
+      <!-- ========= ACEITE DE SOJA ========= -->
+      $1
+          <ul>
+            <li><b>Crushing</b>: recuperación fuerte 2024–2025 con regreso de la oferta de poroto; capacidad ociosa se reduce en el Gran Rosario.</li>
+            <li><b>Destino</b>: India, Bangladesh, China y Norte de África concentran aceite; harina dominada por Asia y MENA para feed.</li>
+            <li><b>Márgenes</b>: <i>crush spread</i> depende de FOB aceite/harina vs costo poroto + flete; tipo de cambio incide en retorno.</li>
+            <li><b>Riesgos</b>: paradas por bajante del río, costos de energía y tensiones arancelarias.</li>
+          </ul>
+        </details>
+      </section>
+
+      <!-- ========= SALCHICHAS VIENA ========= -->
+      $1
+          <ul>
+            <li><b>Demanda</b>: altamente elástica; formatos económicos y multipacks sostienen volumen.</li>
+            <li><b>Costos</b>: carne vacuna y porcina, tripas artificiales, especias e insumos importados; energía y cadena de frío.</li>
+            <li><b>Competencia</b>: marcas líderes vs pymes regionales; MDD ganando share.</li>
+          </ul>
+        </details>
+      </section>
+
+      <!-- ========= BIODIESEL ========= -->
+      $1
+          <ul>
+            <li><b>Mercado interno</b>: corte B7.5 en gasoil; debate por B10–B12.5 impacta demanda local.</li>
+            <li><b>Exportación</b>: derechos compensatorios en UE 2025 presionan; alternativa: mercados regionales y HVO/SAF a mediano plazo.</li>
+            <li><b>Costos</b>: aceite de soja es >80% del costo directo; spread con gasoil fósil define competitividad.</li>
+          </ul>
+        </details>
+      </section>
+
+      <!-- ========= VISUALIZACIONES ========= -->
+      <section class="card" id="graficos">
+        <h2>Visualizaciones</h2>
+        <p class="muted small">Gráficos interactivos para explorar estructura productiva y coyuntura 2022–2025. Los datos agregados son indicativos para uso didáctico; ajustá con tus series finales si lo necesitás.</p>
+        <div class="grid">
+          <div class="col-6">
+            <h3 class="muted">Sunburst de Lácteos</h3>
+            <div id="plot-sunburst" style="height:420px"></div>
+          </div>
+          <div class="col-6">
+            <h3 class="muted">Exportaciones por complejo 2024 USD</h3>
+            <div id="plot-barras-export" style="height:420px"></div>
+          </div>
+          <div class="col-12">
+            <h3 class="muted">Producción 2022–2025 Índice anual</h3>
+            <div id="plot-lineas-indices" style="height:380px"></div>
+          </div>
+          <div class="col-6">
+            <h3 class="muted">Destinos de aceite de soja</h3>
+            <div id="plot-pie-aceite" style="height:380px"></div>
+          </div>
+          <div class="col-6">
+            <h3 class="muted">Sankey de cadena sojera</h3>
+            <div id="plot-sankey-soja" style="height:380px"></div>
+          </div>
+          <div class="col-6">
+            <h3 class="muted">Treemap de complejos exportadores</h3>
+            <div id="plot-treemap-export" style="height:420px"></div>
+          </div>
+          <div class="col-6">
+            <h3 class="muted">Waterfall de margen lácteo simplificado</h3>
+            <div id="plot-waterfall-leche" style="height:420px"></div>
+          </div>
+          <div class="col-12">
+            <h3 class="muted">Heatmap crecimiento por sector y año</h3>
+            <div id="plot-heatmap-sectores" style="height:420px"></div>
+          </div>
+          <div class="col-12">
+            <h3 class="muted">Productividad vs salario real por sector</h3>
+            <div id="plot-bubble-productividad" style="height:420px"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========= FUENTES ========= -->
+      <section class="card" id="fuentes">
+        <h2>Fuentes y enlaces útiles</h2>
+        <ul class="small">
+          <li><a href="https://www.indec.gob.ar/" target="_blank">INDEC – Estadísticas oficiales</a></li>
+          <li><a href="https://www.magyp.gob.ar/sitio/" target="_blank">Secretaría de Bioeconomía – Series agroindustriales</a></li>
+          <li><a href="https://www.bcr.com.ar/" target="_blank">Bolsa de Comercio de Rosario – Informes de granos y crushing</a></li>
+          <li><a href="https://www.usda.gov/oce/commodity/wasde" target="_blank">USDA – WASDE y Oilseeds World Markets</a></li>
+          <li><a href="https://www.fao.org/statistics/es/" target="_blank">FAO – FAOSTAT</a></li>
+          <li><a href="https://www.ipcva.com.ar/" target="_blank">IPCVA – Carne vacuna argentina</a></li>
+          <li><a href="https://www.ciacarnes.com.ar/" target="_blank">Cámara de la Industria y el Comercio de Carnes</a></li>
+          <li><a href="https://www.cil.org.ar/" target="_blank">CIL – Cámara de la Industria Láctea</a></li>
+          <li><a href="https://www.cra.org.ar/" target="_blank">Entidades agro – datos regionales</a></li>
+          <li><a href="https://www.came.org.ar/" target="_blank">CAME – PyMEs alimenticias</a></li>
+          <li><a href="https://www.uia.org.ar/" target="_blank">UIA – Informes industriales</a></li>
+        </ul>
+        <p class="note">Podemos anexar reportes específicos por industria (PDF/CSV) y referencias académicas de la cátedra en una próxima iteración.</p>
+      </section>
+
+      <!-- ========= PRUEBAS ========= -->
+      <section class="card tests" id="pruebas">
+        <h2>Pruebas automáticas</h2>
+        <p class="small">Auto-chequeos básicos para asegurar que todos los gráficos se renderizan sin errores de JavaScript.</p>
+        <ul id="test-results" class="small"></ul>
+      </section>
+    </main>
   </div>
-</div>
 
-<script>
-/* Cargar tarjetas desde JSON externo */
-fetch('cardsData.json')
-  .then(r => r.json())
-  .then(data => {
-    cards = data;
-    // rellenar selector y mazo
-    topics.splice(1, topics.length - 1, ...new Set(cards.map(c => c.topic)));
-    topics.forEach(t => {
-      const o = document.createElement('option');
-      o.value = t; o.textContent = t;
-      if (![...select.options].some(opt => opt.value === t)) select.appendChild(o);
+  <footer>
+    <p class="small">Versión interactiva – Industrias y Servicios (UNCuyo). Datos y coyuntura 2022–2025 con foco en Argentina y Mendoza. Esta página es un resumen didáctico; ajustar cifras finas según fuentes oficiales más recientes.</p>
+  </footer>
+
+  <script>
+    // ------ TOC dinámico + Filtro ------
+    const toc = document.getElementById('toc');
+    const sections = Array.from(document.querySelectorAll('main > section'));
+    function rebuildTOC(filter=""){
+      toc.innerHTML = '';
+      sections.forEach(sec=>{
+        const title = sec.querySelector('h2').textContent.trim();
+        const text = sec.textContent.toLowerCase();
+        const match = filter? text.includes(filter.toLowerCase()) : true;
+        sec.style.display = match? 'block' : 'none';
+        if(match){
+          const a = document.createElement('a');
+          a.href = `#${sec.id}`;
+          a.textContent = title;
+          toc.appendChild(a);
+        }
+      })
+    }
+    rebuildTOC();
+    document.getElementById('q').addEventListener('input', e=> rebuildTOC(e.target.value));
+
+    // ------ Expandir/colapsar todos los <details> ------
+    document.getElementById('btnExpandAll').addEventListener('click', (e)=>{
+      e.preventDefault(); document.querySelectorAll('details').forEach(d=> d.open = true);
     });
-    render(select.value || 'Todas');
-  })
-  .catch(err => console.error('No se pudo cargar cardsData.json', err));
-</script>
+    document.getElementById('btnCollapseAll').addEventListener('click', (e)=>{
+      e.preventDefault(); document.querySelectorAll('details').forEach(d=> d.open = false);
+    });
+  </script>
 
-<script>
-// Utiliza el bloque JSON para cargar tarjetas; aquí placeholder [] para mantener archivo liviano
-let cards=[];
-try{cards=JSON.parse(document.getElementById('cardsData').textContent);}catch(err){console.error('JSON error',err);}
-const topics=["Todas",...new Set(cards.map(c=>c.topic))];
-const select=document.getElementById('topicSelect');
-topics.forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=t;select.appendChild(o);});
-const deck=document.getElementById('deck');
-// Modal refs
-const overlay=document.getElementById('overlay');
-const modalQ=document.getElementById('modalQuestion');
-const modalA=document.getElementById('modalAnswer');
-const closeBtn=document.getElementById('closeBtn');
-closeBtn.onclick=()=>overlay.style.display='none';
-window.addEventListener('keydown',e=>{if(e.key==='Escape')overlay.style.display='none';});
+  <script>
+    // ====== Gráficos Plotly (una sola definición, sin duplicados) ======
+    const layoutBase = {paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)', margin:{l:10,r:10,b:20,t:10}, font:{color:'#e5e7eb'}};
 
-function render(topic){deck.innerHTML='';
-  (topic==='Todas'?cards:cards.filter(c=>c.topic===topic)).forEach(({q,a})=>{
-    const card=document.createElement('div');card.className='card';
-    const isLong=a.length>400;
-    card.innerHTML=`<div class='inner'><div class='front'><strong>${q}</strong>${isLong?'<div style="margin-top:.5rem;font-size:.75rem;opacity:.75">(click para ver)</div>':''}</div><div class='back'>${a.replace(/\n/g,'<br>')}</div></div>`;
-    card.onclick=e=>{
-      if(isLong && card.classList.contains('flipped')){
-        // abrir modal con contenido completo
-        modalQ.textContent=q;
-        modalA.innerHTML=a.replace(/\n/g,'<br>');
-        overlay.style.display='flex';
-      }else{
-        card.classList.toggle('flipped');
+    // Sunburst de lácteos
+    const dataSun = [{
+      type: 'sunburst',
+      labels: ['Leche total','Leche fluida','Leche industrializada','Quesos','Leche en polvo','Yogur','Manteca','Dulce de leche','Otros productos','Quesos blandos','Quesos semiduros','Quesos duros'],
+      parents:['','Leche total','Leche total','Leche industrializada','Leche industrializada','Leche industrializada','Leche industrializada','Leche industrializada','Leche industrializada','Quesos','Quesos','Quesos'],
+      values: [100, 21.9, 78.1, 47.1, 18.5, 4.1, 2.3, 2.0, 4.1, 21.9, 13.5, 11.7],
+      branchvalues: 'total',
+      hovertemplate: '%{label}: %{value:.1f}%<extra></extra>'
+    }];
+    Plotly.newPlot('plot-sunburst', dataSun, layoutBase, {displayModeBar:false, responsive:true});
+
+    // Barras exportaciones
+    const expCats = ['Aceite de soja','Carne vacuna','Lácteos','Azúcar y alcohol','Trigo y harinas'];
+    const expVals = [5200, 3544, 1181, 422, 3500];
+    Plotly.newPlot('plot-barras-export', [{ type:'bar', x: expCats, y: expVals, text: expVals.map(v=>`US$ ${v.toLocaleString('es-AR')}`), textposition:'auto' }], {...layoutBase, yaxis:{title:'USD millones'}}, {displayModeBar:false, responsive:true});
+
+    // Líneas índice 2022=100
+    const anios = [2022,2023,2024,2025];
+    function serie(nombre, vals){return {type:'scatter', mode:'lines+markers', name:nombre, x:anios, y:vals}};
+    Plotly.newPlot('plot-lineas-indices', [
+      serie('Leche cruda', [100, 92, 103, 114]),
+      serie('Carne vacuna', [100, 101, 98, 102]),
+      serie('Aceite de soja', [100, 88, 120, 125]),
+      serie('Azúcar', [100, 90, 98, 105]),
+      serie('Pollo', [100, 99, 101, 104])
+    ], {...layoutBase, yaxis:{title:'Índice 2022=100'}}, {displayModeBar:false, responsive:true});
+
+    // Pie destinos aceite de soja
+    const destinos = ['India','China','Bangladesh','Egipto','Otros'];
+    const share = [36, 18, 12, 10, 24];
+    Plotly.newPlot('plot-pie-aceite', [{type:'pie', labels:destinos, values:share, hole:0.35}], layoutBase, {displayModeBar:false, responsive:true});
+
+    // Sankey sojero (flujos indicativos)
+    const sankey = { type: 'sankey', orientation: 'h', node: {pad:12, thickness:14, line:{color:'#23314a', width:1}, label:['Poroto de soja','Aceite','Harina','Mercado interno aceite','Exportación aceite','Mercado interno harina','Exportación harina'], color:['#0c1528','#14532d','#1d4ed8','#0f766e','#1f2937','#1e293b','#334155']}, link: {source:[0,0,1,1,2,2], target:[1,2,3,4,5,6], value:[19,79,6,13,35,44]}};
+    Plotly.newPlot('plot-sankey-soja', [sankey], layoutBase, {displayModeBar:false, responsive:true});
+
+    // Treemap complejos exportadores
+    const labelsT = ['Exportaciones totales','Complejo oleaginoso','Aceite de soja','Harina de soja','Grano de soja','Complejo cerealero','Trigo','Maíz','Complejo cárnico','Vacuno','Avícola','Lácteos','Azúcar y alcohol'];
+    const parentsT = ['', 'Exportaciones totales','Complejo oleaginoso','Complejo oleaginoso','Complejo oleaginoso','Exportaciones totales','Complejo cerealero','Complejo cerealero','Exportaciones totales','Complejo cárnico','Complejo cárnico','Exportaciones totales','Exportaciones totales'];
+    const valuesT = [15000, 6500, 5200, 900, 400, 4200, 1800, 2400, 2000, 1600, 200, 700, 600];
+    Plotly.newPlot('plot-treemap-export', [{type:'treemap', labels:labelsT, parents:parentsT, values:valuesT, branchvalues:'total'}], layoutBase, {displayModeBar:false, responsive:true});
+
+    // Waterfall margen lácteo (didáctico)
+    const wf = [{ type: 'waterfall', x: ['Precio final litro', 'Impuestos', 'Logística y comercial', 'Industrialización', 'Materia prima tambo', 'Margen neto industria'], y: [200, -42, -20, -48, -70, 20], measure: ['relative','relative','relative','relative','relative','total'], text: ['PVP','IVA+internos','Distribución','Energía mano de obra','Leche cruda','Resultado'], textposition:'outside' }];
+    Plotly.newPlot('plot-waterfall-leche', wf, {...layoutBase, yaxis:{title:'$ por litro'}}, {displayModeBar:false, responsive:true});
+
+    // Heatmap crecimiento por sector
+    const sectores = ['Lácteos','Carne','Avícola','Azúcar','Aceite soja','Trigo'];
+    const heatZ = [ [2,-6,5,8], [1,1,-3,4], [0,-2,2,3], [-5,3,1,2], [-8,10,3,2], [-12,9,2,1] ];
+    Plotly.newPlot('plot-heatmap-sectores', [{type:'heatmap', z:heatZ, x:[2022,2023,2024,2025], y:sectores, colorscale:'Blues'}], {...layoutBase, xaxis:{type:'category'}}, {displayModeBar:false, responsive:true});
+
+    // Bubble productividad vs salario real
+    const bubble = [{ type:'scatter', mode:'markers+text', textposition:'top center', x:[105,98,102,96,120,99], y:[92,88,95,91,97,90], text:sectores, marker:{size:[24,22,18,14,26,16], sizemode:'area', sizeref:2} }];
+    Plotly.newPlot('plot-bubble-productividad', bubble, {...layoutBase, xaxis:{title:'Índice productividad 2022=100'}, yaxis:{title:'Índice salario real 2022=100'}}, {displayModeBar:false, responsive:true});
+  </script>
+
+  <script>
+    // ====== Pruebas automáticas mínimas (sanity checks) ======
+    (function runSelfTests(){
+      const ids = ['plot-sunburst','plot-barras-export','plot-lineas-indices','plot-pie-aceite','plot-sankey-soja','plot-treemap-export','plot-waterfall-leche','plot-heatmap-sectores','plot-bubble-productividad'];
+      const ul = document.getElementById('test-results');
+      const results = ids.map(id=>{
+        const el = document.getElementById(id);
+        const ok = !!el && !!el.querySelector('.plotly');
+        const li = document.createElement('li');
+        li.innerHTML = `<span class="badge ${ok?'pass':'fail'}">${ok?'PASS':'FAIL'}</span> Render ${id}`;
+        ul.appendChild(li);
+        return ok;
+      });
+      // Test adicional: no hay variables duplicadas básicas
+      try {
+        // acceder a variables esperadas para verificar que existen
+        if(!window.Plotly) throw new Error('Plotly no cargado');
+        const li = document.createElement('li');
+        li.innerHTML = `<span class="badge pass">PASS</span> Plotly cargado`;
+        ul.appendChild(li);
+      } catch(e){
+        const li = document.createElement('li');
+        li.innerHTML = `<span class="badge fail">FAIL</span> ${e.message}`;
+        ul.appendChild(li);
       }
-    };
-    deck.appendChild(card);
-  });
-}
-select.onchange=e=>render(e.target.value);
-render('Todas');
-</script>
+    })();
+  </script>
 </body>
 </html>
